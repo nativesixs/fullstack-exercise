@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import ReactMarkdown from 'react-markdown';
@@ -16,17 +16,38 @@ import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticleById } from '../../store/actions/articleActions';
 import { format } from 'date-fns';
 import CommentsSection from '../../components/CommentsSection';
+import { getCommentsForArticle } from '../../api/commentApi';
+import { Comment } from '../../types/comment';
+import { config } from '../../config';
 
 const ArticleDetail: React.FC = () => {
   const { articleId } = useParams<{ articleId: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const { currentArticle, loading, error } = useSelector((state: RootState) => state.articles);
+  
+  const [mockComments, setMockComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     if (articleId) {
       dispatch(fetchArticleById(articleId));
+      
+      if (config.USE_MOCKS) {
+        const comments = getCommentsForArticle(articleId);
+        setMockComments(comments);
+      }
     }
   }, [dispatch, articleId]);
+
+  let comments: Comment[];
+  
+  if (config.USE_MOCKS) {
+    const allComments = [...(currentArticle?.comments || []), ...mockComments];
+    comments = allComments.filter((comment, index, self) => 
+      index === self.findIndex(c => c.commentId === comment.commentId)
+    );
+  } else {
+    comments = currentArticle?.comments || [];
+  }
 
   const formatDate = (dateString: string) => {
     try {
@@ -95,7 +116,7 @@ const ArticleDetail: React.FC = () => {
       
       <Divider my={8} />
       
-      <CommentsSection articleId={currentArticle.articleId} comments={currentArticle.comments || []} />
+      <CommentsSection articleId={currentArticle.articleId} comments={comments} />
     </Container>
   );
 };

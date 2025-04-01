@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Heading,
@@ -13,11 +13,19 @@ import {
   HStack,
   Avatar,
   useToast,
-  Flex
+  Flex,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { Comment } from '../../types/comment';
 import { postComment, upvoteComment, downvoteComment } from '../../api/commentApi';
+import websocketService from '../../services/websocketService';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface CommentsSectionProps {
   articleId: string;
@@ -29,7 +37,51 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [localComments, setLocalComments] = useState<Comment[]>(comments);
+  const [error, setError] = useState<string | null>(null);
   const toast = useToast();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
+  useEffect(() => {
+    const handleCommentEvent = (event: { changeType: string; comment: Comment }) => {
+      if (event.comment.articleId === articleId) {
+        if (event.changeType === 'commentCreated') {
+          setLocalComments(prevComments => {
+            // avoid dupes ? maybe not wanted ?
+            if (!prevComments.some(c => c.commentId === event.comment.commentId)) {
+              return [event.comment, ...prevComments];
+            }
+            return prevComments;
+          });
+          
+          toast({
+            title: 'New comment',
+            description: 'Someone just added a new comment',
+            status: 'info',
+            duration: 3000,
+            isClosable: true,
+          });
+        } else if (event.changeType === 'commentUpVoted' || event.changeType === 'commentDownVoted') {
+          setLocalComments(prevComments => 
+            prevComments.map(comment => 
+              comment.commentId === event.comment.commentId ? event.comment : comment
+            )
+          );
+        }
+      }
+    };
+
+    websocketService.subscribe(handleCommentEvent);
+
+    return () => {
+      websocketService.unsubscribe(handleCommentEvent);
+    };
+  }, [articleId, toast]);
+
+  useEffect(() => {
+    if (comments.length > 0) {
+      setLocalComments(comments);
+    }
+  }, [comments]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -41,6 +93,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!author.trim() || !content.trim()) {
       toast({
@@ -62,7 +115,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
         content
       });
       
-      setLocalComments([newComment, ...localComments]);
+      setLocalComments(prevComments => [newComment, ...prevComments]);
       setAuthor('');
       setContent('');
       
@@ -72,12 +125,26 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error submitting comment:', error);
+      
+      let errorMessage = 'Failed to post comment';
+      
+      if (error.response?.status === 401) {
+        errorMessage = 'Authentication required. Please log in to post comments.';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'You are not authorized to post comments.';
+      } else if (error.response?.status === 500) {
+        errorMessage = 'Server error. This might be due to missing authentication.';
+      }
+      
+      setError(errorMessage);
+      
       toast({
         title: 'Error',
-        description: 'Failed to post comment',
+        description: errorMessage,
         status: 'error',
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
     } finally {
@@ -87,19 +154,23 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
 
   const handleVote = async (commentId: string, isUpvote: boolean) => {
     try {
-      const updatedComment = isUpvote
-        ? await upvoteComment(commentId)
-        : await downvoteComment(commentId);
+      if (isUpvote) {
+        await upvoteComment(commentId);
+      } else {
+        await downvoteComment(commentId);
+      }
+    } catch (error: any) {
+      let errorMessage = 'Failed to vote on comment';
       
-      setLocalComments(
-        localComments.map(comment => 
-          comment.commentId === commentId ? updatedComment : comment
-        )
-      );
-    } catch (error) {
+      if (error.response?.status === 401) {
+        errorMessage = 'Authentication required. Please log in to vote on comments.';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'You are not authorized to vote on comments.';
+      }
+      
       toast({
         title: 'Error',
-        description: 'Failed to vote on comment',
+        description: errorMessage,
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -112,6 +183,24 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
       <Heading as="h2" size="lg" mb={6}>
         Comments ({localComments.length})
       </Heading>
+      
+      {!isAuthenticated && (
+        <Alert status="warning" mb={6}>
+          <AlertIcon />
+          <AlertTitle>Authentication required!</AlertTitle>
+          <AlertDescription>
+            You need to <Button as={RouterLink} to="/login" colorScheme="blue" size="sm" ml={2}>login</Button> 
+            to post comments and vote.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {error && (
+        <Alert status="error" mb={6}>
+          <AlertIcon />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       
       <Box as="form" onSubmit={handleSubmit} mb={10} p={6} bg="gray.50" borderRadius="md">
         <Heading as="h3" size="md" mb={4}>
@@ -144,6 +233,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
           colorScheme="blue"
           isLoading={submitting}
           loadingText="Posting"
+          isDisabled={!isAuthenticated}
         >
           Post Comment
         </Button>
@@ -177,6 +267,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
                       onClick={() => handleVote(comment.commentId, true)}
                       colorScheme="blue"
                       variant="outline"
+                      isDisabled={!isAuthenticated}
                     >
                       Upvote
                     </Button>
@@ -186,6 +277,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
                       onClick={() => handleVote(comment.commentId, false)}
                       colorScheme="red"
                       variant="outline"
+                      isDisabled={!isAuthenticated}
                     >
                       Downvote
                     </Button>

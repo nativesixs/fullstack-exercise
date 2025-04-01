@@ -1,17 +1,20 @@
 import React from 'react';
-import { Box, Container, Flex, Heading, Spacer, Button, Link } from '@chakra-ui/react';
+import { Box, Flex, Container, Button, Heading, Spacer, Link, IconButton, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store/store';
-import { logout } from '../../store/slices/authSlice';
+import { RootState, AppDispatch } from '../../store/store';
+import { logout } from '../../store/actions/authActions';
+import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { colorMode, toggleColorMode } = useColorMode();
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -20,39 +23,68 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50">
-      <Box as="header" bg="white" boxShadow="sm" py={4}>
+    <Box minH="100vh" bg={bgColor}>
+      <Box as="header" bg="white" boxShadow="sm" position="sticky" top={0} zIndex={10}>
         <Container maxW="container.xl">
-          <Flex align="center">
-            <Heading size="md" as={RouterLink} to="/">
-              Blog Engine
+          <Flex as="nav" py={4} alignItems="center">
+            <Heading as="h1" size="md">
+              <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
+                Blog App
+              </Link>
             </Heading>
+            
             <Spacer />
-            <Box>
+            
+            <Flex gap={4} alignItems="center">
+              <Link as={RouterLink} to="/">
+                Recent Articles
+              </Link>
+              
               {isAuthenticated ? (
-                <Flex gap={4}>
-                  <Button as={RouterLink} to="/admin/articles" colorScheme="gray" variant="ghost">
+                <>
+                  <Link as={RouterLink} to="/admin/articles">
                     My Articles
-                  </Button>
-                  <Button as={RouterLink} to="/admin/new-article" colorScheme="blue">
-                    Create Article
-                  </Button>
-                  <Button onClick={handleLogout} variant="outline">
+                  </Link>
+                  <Link as={RouterLink} to="/admin/new-article">
+                    Add Article
+                  </Link>
+                  <Button variant="outline" onClick={handleLogout}>
                     Logout
                   </Button>
-                </Flex>
+                </>
               ) : (
-                <Button as={RouterLink} to="/login" colorScheme="blue">
+                <Link as={RouterLink} to="/login">
                   Login
-                </Button>
+                </Link>
               )}
-            </Box>
+              
+              <IconButton
+                aria-label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}
+                icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+                onClick={toggleColorMode}
+                variant="ghost"
+              />
+            </Flex>
           </Flex>
         </Container>
       </Box>
+      
       <Container maxW="container.xl" py={8}>
         {children}
       </Container>
+      
+      <Box as="footer" bg="white" py={6} mt="auto">
+        <Container maxW="container.xl">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Box>© {new Date().getFullYear()} Blog App</Box>
+            <Flex gap={6}>
+              <Link href="#">Privacy</Link>
+              <Link href="#">Terms</Link>
+              <Link href="#">Contact</Link>
+            </Flex>
+          </Flex>
+        </Container>
+      </Box>
     </Box>
   );
 };

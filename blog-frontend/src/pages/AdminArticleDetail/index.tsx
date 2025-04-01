@@ -14,12 +14,14 @@ import {
   Flex,
   useToast,
   FormErrorMessage,
+  Divider,
 } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticleById, updateArticle } from '../../store/actions/articleActions';
 import SimpleMDE from 'react-simplemde-editor';
 import 'easymde/dist/easymde.min.css';
+import ImageUploader from '../../components/ImageUploader';
 
 const AdminArticleDetail: React.FC = () => {
   const { articleId } = useParams<{ articleId: string }>();
@@ -32,6 +34,7 @@ const AdminArticleDetail: React.FC = () => {
   const [title, setTitle] = useState('');
   const [perex, setPerex] = useState('');
   const [content, setContent] = useState('');
+  const [imageId, setImageId] = useState<string | undefined>(undefined);
   const [submitting, setSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState({
     title: '',
@@ -50,6 +53,7 @@ const AdminArticleDetail: React.FC = () => {
       setTitle(currentArticle.title);
       setPerex(currentArticle.perex);
       setContent(currentArticle.content);
+      setImageId(currentArticle.imageId);
     }
   }, [currentArticle]);
 
@@ -98,6 +102,7 @@ const AdminArticleDetail: React.FC = () => {
             title,
             perex,
             content,
+            imageId,
           },
         })).unwrap();
         
@@ -121,6 +126,14 @@ const AdminArticleDetail: React.FC = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleImageUploaded = (newImageId: string) => {
+    setImageId(newImageId);
+  };
+
+  const handleImageRemoved = () => {
+    setImageId(undefined);
   };
 
   if (loading) {
@@ -156,6 +169,12 @@ const AdminArticleDetail: React.FC = () => {
             <FormErrorMessage>{validationErrors.title}</FormErrorMessage>
           </FormControl>
           
+          <ImageUploader 
+            initialImageId={imageId}
+            onImageUploaded={handleImageUploaded}
+            onImageRemoved={handleImageRemoved}
+          />
+          
           <FormControl isInvalid={!!validationErrors.perex} isRequired>
             <FormLabel>Perex</FormLabel>
             <Textarea
@@ -166,6 +185,8 @@ const AdminArticleDetail: React.FC = () => {
             />
             <FormErrorMessage>{validationErrors.perex}</FormErrorMessage>
           </FormControl>
+          
+          <Divider />
           
           <FormControl isInvalid={!!validationErrors.content} isRequired>
             <FormLabel>Content</FormLabel>

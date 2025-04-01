@@ -1,50 +1,61 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
   FormControl,
   FormLabel,
-  Heading,
   Input,
-  Stack,
+  Heading,
+  VStack,
   Text,
-  useToast,
   FormErrorMessage,
+  useToast,
 } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
-import { loginUser } from '../../store/actions/authActions';
+import { login } from '../../store/actions/authActions';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [usernameError, setUsernameError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  
+  const [errors, setErrors] = useState({
+    username: '',
+    password: '',
+  });
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, loading, error } = useSelector((state: RootState) => state.auth);
+  
+  const from = location.state?.from?.pathname || '/admin/articles';
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   const validateForm = () => {
+    const newErrors = {
+      username: '',
+      password: '',
+    };
     let isValid = true;
-    
+
     if (!username.trim()) {
-      setUsernameError('Username is required');
+      newErrors.username = 'Username is required';
       isValid = false;
-    } else {
-      setUsernameError('');
     }
-    
+
     if (!password) {
-      setPasswordError('Password is required');
+      newErrors.password = 'Password is required';
       isValid = false;
-    } else {
-      setPasswordError('');
     }
-    
+
+    setErrors(newErrors);
     return isValid;
   };
 
@@ -54,66 +65,75 @@ const Login: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-    
+
     try {
-      const resultAction = await dispatch(loginUser({ username, password }));
-      
-      if (loginUser.fulfilled.match(resultAction)) {
-        toast({
-          title: 'Login successful',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-        navigate('/admin/articles');
-      }
-    } catch (err) {
-      console.error('Login failed:', err);
+      await dispatch(login({ username, password })).unwrap();
+      toast({
+        title: 'Login successful',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      navigate(from, { replace: true });
+    } catch (error) {
+      toast({
+        title: 'Login failed',
+        description: 'Please check your credentials and try again',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={8}>
-      <Heading mb={6}>Login</Heading>
-      
-      <form onSubmit={handleSubmit}>
-        <Stack spacing={4}>
-          <FormControl isInvalid={!!usernameError}>
+    <Box maxWidth="400px" mx="auto" mt={10}>
+      <Heading as="h1" mb={6} textAlign="center">
+        Login
+      </Heading>
+
+      {error && (
+        <Text color="red.500" mb={4} textAlign="center">
+          {error}
+        </Text>
+      )}
+
+      <Box as="form" onSubmit={handleSubmit}>
+        <VStack spacing={4}>
+          <FormControl isInvalid={!!errors.username}>
             <FormLabel>Username</FormLabel>
             <Input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
             />
-            <FormErrorMessage>{usernameError}</FormErrorMessage>
+            <FormErrorMessage>{errors.username}</FormErrorMessage>
           </FormControl>
-          
-          <FormControl isInvalid={!!passwordError}>
+
+          <FormControl isInvalid={!!errors.password}>
             <FormLabel>Password</FormLabel>
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
             />
-            <FormErrorMessage>{passwordError}</FormErrorMessage>
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
           </FormControl>
-          
-          {error && (
-            <Text color="red.500" fontSize="sm">
-              {error}
-            </Text>
-          )}
-          
+
           <Button
             type="submit"
             colorScheme="blue"
+            width="full"
+            mt={4}
             isLoading={loading}
             loadingText="Logging in"
           >
-            Log In
+            Login
           </Button>
-        </Stack>
-      </form>
+        </VStack>
+      </Box>
     </Box>
   );
 };
