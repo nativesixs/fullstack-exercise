@@ -1,4 +1,5 @@
 import apiClient from './apiClient';
+import { getApiKey } from '../utils/tokenStorage';
 
 interface ImageInfo {
   imageId: string;
@@ -15,7 +16,6 @@ export const uploadImage = async (file: File): Promise<ImageInfo> => {
     },
   });
 
-  // TODO - doesnt need to be array
   return response.data[0];
 };
 
@@ -24,5 +24,9 @@ export const deleteImage = async (imageId: string): Promise<void> => {
 };
 
 export const getImageUrl = (imageId: string): string => {
-  return `https://fullstack.exercise.applifting.cz/images/${imageId}`;
+  const apiKey = getApiKey();
+  const baseUrl = `https://fullstack.exercise.applifting.cz/images/${imageId}`;
+  
+  // Add API key as a URL parameter for direct image links
+  return apiKey ? `${baseUrl}?apiKey=${encodeURIComponent(apiKey)}` : baseUrl;
 };

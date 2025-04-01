@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Heading, Text, Image, Flex, Link } from '@chakra-ui/react';
+import { Box, Heading, Text, Flex, Link } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Article } from '../../types/article';
+import ApiImage from '../ApiImage';
 
 interface ArticleCardProps {
   article: Article;
@@ -17,22 +18,18 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
     }
   };
 
-  const getImageUrl = (imageId: string) => {
-    return `https://fullstack.exercise.applifting.cz/images/${imageId}`;
-  };
-
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb={6}>
       <Flex direction={{ base: 'column', md: 'row' }}>
         {article.imageId && (
-          <Box width={{ base: '100%', md: '30%' }} minHeight="200px">
-            <Image
-              src={getImageUrl(article.imageId)}
+          <Box width={{ base: '100%', md: '30%' }} minHeight="200px" position="relative">
+            <ApiImage
+              imageId={article.imageId}
               alt={article.title}
-              objectFit="cover"
               height="100%"
               width="100%"
-              fallbackSrc="https://via.placeholder.com/300x200?text=Image+Unavailable"
+              minHeight="200px"
+              fallbackText="Image unavailable"
             />
           </Box>
         )}

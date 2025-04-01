@@ -7,8 +7,6 @@ import {
   Heading,
   Text,
   Divider,
-  Flex,
-  Image,
   Container,
   Alert,
   AlertIcon,
@@ -21,6 +19,7 @@ import { getCommentsForArticle } from '../../api/commentApi';
 import { Comment } from '../../types/comment';
 import { config } from '../../config';
 import LoadingState from '../../components/LoadingState';
+import ApiImage from '../../components/ApiImage';
 
 const ArticleDetail: React.FC = () => {
   const { articleId } = useParams<{ articleId: string }>();
@@ -94,12 +93,14 @@ const ArticleDetail: React.FC = () => {
         
         {currentArticle.imageId && (
           <Box mb={6}>
-            <Image
-              src={`https://fullstack.exercise.applifting.cz/images/${currentArticle.imageId}`}
+            <ApiImage
+              imageId={currentArticle.imageId}
               alt={currentArticle.title}
               borderRadius="md"
               width="100%"
-              fallbackSrc="https://via.placeholder.com/800x400?text=Image+Unavailable"
+              minHeight="300px"
+              maxHeight="400px"
+              fallbackText="Image unavailable"
             />
           </Box>
         )}

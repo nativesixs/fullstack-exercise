@@ -27,6 +27,28 @@ const apiClient = axios.create({
   },
 });
 
+// Create a second instance specifically for image requests
+export const imageClient = axios.create({
+  baseURL: API_URL,
+  responseType: 'blob',
+});
+
+// Add interceptor for image client
+imageClient.interceptors.request.use(
+  (config) => {
+    const apiKey = getApiKey();
+    
+    if (apiKey) {
+      config.headers['X-API-KEY'] = apiKey;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 apiClient.interceptors.request.use(
   (config) => {
     const apiKey = getApiKey();

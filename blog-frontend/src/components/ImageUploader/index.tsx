@@ -6,12 +6,12 @@ import {
   FormLabel,
   Input,
   Text,
-  Image,
   Flex,
   Spinner,
   useToast,
 } from '@chakra-ui/react';
-import { uploadImage, deleteImage, getImageUrl } from '../../api/imageApi';
+import { uploadImage, deleteImage } from '../../api/imageApi';
+import ApiImage from '../ApiImage';
 
 interface ImageUploaderProps {
   initialImageId?: string;
@@ -116,11 +116,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         
         {imageId ? (
           <Box position="relative" mb={4}>
-            <Image 
-              src={getImageUrl(imageId)} 
+            <ApiImage 
+              imageId={imageId} 
               alt="Featured image" 
               borderRadius="md"
-              maxH="200px"
+              maxHeight="200px"
               mb={2}
             />
             <Button 
