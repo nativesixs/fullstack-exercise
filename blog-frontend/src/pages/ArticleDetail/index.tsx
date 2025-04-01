@@ -92,14 +92,15 @@ const ArticleDetail: React.FC = () => {
         </Text>
         
         {currentArticle.imageId && (
-          <Box mb={6}>
+          <Box mb={6} height="350px">
             <ApiImage
               imageId={currentArticle.imageId}
               alt={currentArticle.title}
               borderRadius="md"
               width="100%"
-              minHeight="300px"
-              maxHeight="400px"
+              height="100%"
+              minHeight="0"
+              objectFit="contain"
               fallbackText="Image unavailable"
             />
           </Box>

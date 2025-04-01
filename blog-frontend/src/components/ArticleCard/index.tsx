@@ -22,14 +22,15 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb={6}>
       <Flex direction={{ base: 'column', md: 'row' }}>
         {article.imageId && (
-          <Box width={{ base: '100%', md: '30%' }} minHeight="200px" position="relative">
+          <Box width={{ base: '100%', md: '30%' }} height={{ base: '200px', md: '250px' }} position="relative">
             <ApiImage
               imageId={article.imageId}
               alt={article.title}
               height="100%"
               width="100%"
-              minHeight="200px"
+              minHeight="0"
               fallbackText="Image unavailable"
+              objectFit="cover"
             />
           </Box>
         )}

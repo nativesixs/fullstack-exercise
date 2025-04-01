@@ -115,13 +115,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <FormLabel>Featured Image</FormLabel>
         
         {imageId ? (
-          <Box position="relative" mb={4}>
+          <Box position="relative" mb={4} height="200px">
             <ApiImage 
               imageId={imageId} 
               alt="Featured image" 
               borderRadius="md"
-              maxHeight="200px"
-              mb={2}
+              height="100%"
+              width="100%"
+              minHeight="0"
+              objectFit="contain"
             />
             <Button 
               size="sm" 

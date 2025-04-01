@@ -21,9 +21,9 @@ const ApiImage: React.FC<ApiImageProps> = ({
   alt = 'Image',
   fallbackText = 'Image unavailable',
   minHeight = '200px',
-  maxHeight,
+  maxHeight = 'auto',
   width = '100%',
-  height,
+  height = 'auto',
   objectFit = 'cover',
   borderRadius,
   mb,
@@ -119,18 +119,28 @@ const ApiImage: React.FC<ApiImageProps> = ({
   }
   
   return (
-    <Image
-      src={imageUrl}
-      alt={alt}
+    <Box
       width={width}
       height={height}
       minHeight={minHeight}
       maxHeight={maxHeight}
-      objectFit={objectFit}
-      borderRadius={borderRadius}
       mb={mb}
-      onError={() => setError(true)}
-    />
+      position="relative"
+      overflow="hidden"
+      borderRadius={borderRadius}
+    >
+      <Image
+        src={imageUrl}
+        alt={alt}
+        width="100%"
+        height="100%"
+        objectFit={objectFit}
+        position={height !== 'auto' ? 'absolute' : 'static'}
+        top="0"
+        left="0"
+        onError={() => setError(true)}
+      />
+    </Box>
   );
 };
 
