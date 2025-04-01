@@ -1,45 +1,58 @@
 import React, { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Button,
   Heading,
   Text,
-  Stack,
-  Link,
-  Divider,
   Flex,
-  Spinner,
+  Select,
 } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticles } from '../../store/actions/articleActions';
-import { format } from 'date-fns';
 import ApiKeySetup from '../../components/ApiKeySetup';
+import ArticleCard from '../../components/ArticleCard';
+import Pagination from '../../components/Pagination';
+import LoadingState from '../../components/LoadingState';
+
+const ITEMS_PER_PAGE = 5;
 
 const ArticleList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { articles, loading, error } = useSelector((state: RootState) => state.articles);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
   useEffect(() => {
-    dispatch(fetchArticles());
+    dispatch(fetchArticles({})); // Pass empty object
   }, [dispatch]);
 
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), 'MMM d, yyyy');
-    } catch (error) {
-      return dateString;
-    }
+  // Sort and paginate the articles
+  const sortedArticles = [...(articles || [])].sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+  });
+
+  const totalPages = Math.ceil(sortedArticles.length / ITEMS_PER_PAGE);
+  const paginatedArticles = sortedArticles.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOrder(e.target.value as 'newest' | 'oldest');
+    setCurrentPage(1);
   };
 
   if (loading) {
-    return (
-      <Flex justify="center" mt={10}>
-        <Spinner size="xl" />
-      </Flex>
-    );
+    return <LoadingState text="Loading articles..." fullPage />;
   }
 
   if (error && error.includes('API key')) {
@@ -72,36 +85,30 @@ const ArticleList: React.FC = () => {
 
   return (
     <Box>
-      <Heading as="h1" mb={6}>Recent Articles</Heading>
+      <Flex justify="space-between" align="center" mb={6}>
+        <Heading as="h1">Recent Articles</Heading>
+        <Box>
+          <Select value={sortOrder} onChange={handleSortChange} width="200px">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </Select>
+        </Box>
+      </Flex>
       
       {!articles || articles.length === 0 ? (
         <Text>No articles found.</Text>
       ) : (
-        <Stack spacing={8}>
-          {articles.map((article) => (
-            <Box key={article.articleId}>
-              <Heading as="h2" size="lg" mb={2}>
-                <Link as={RouterLink} to={`/articles/${article.articleId}`} color="blue.600">
-                  {article.title}
-                </Link>
-              </Heading>
-              
-              <Text color="gray.500" fontSize="sm" mb={3}>
-                {formatDate(article.createdAt)}
-              </Text>
-              
-              <Text mb={4}>{article.perex}</Text>
-              
-              <Flex>
-                <Link as={RouterLink} to={`/articles/${article.articleId}`} color="blue.600">
-                  Read whole article
-                </Link>
-              </Flex>
-              
-              <Divider mt={6} />
-            </Box>
+        <>
+          {paginatedArticles.map((article) => (
+            <ArticleCard key={article.articleId} article={article} />
           ))}
-        </Stack>
+          
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
       )}
     </Box>
   );

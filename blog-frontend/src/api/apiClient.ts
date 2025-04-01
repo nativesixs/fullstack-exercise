@@ -3,6 +3,23 @@ import { getApiKey, getAccessToken } from '../utils/tokenStorage';
 
 const API_URL = 'https://fullstack.exercise.applifting.cz';
 
+// Create a custom event system for tracking loading states
+interface LoadingStateEvent extends CustomEvent {
+  detail: {
+    url: string;
+    loading: boolean;
+    method: string;
+  };
+}
+
+export const dispatchLoadingEvent = (url: string, loading: boolean, method: string) => {
+  const event = new CustomEvent('api-loading-state-change', {
+    detail: { url, loading, method }
+  }) as LoadingStateEvent;
+  
+  window.dispatchEvent(event);
+};
+
 const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
@@ -16,17 +33,17 @@ apiClient.interceptors.request.use(
     
     if (apiKey) {
       config.headers['X-API-KEY'] = apiKey;
-      console.log('Setting API Key header:', apiKey);
     } else {
       console.error('API Key is missing - requests will fail!');
     }
     
     const accessToken = getAccessToken();
-    // TODO - cleanup
     if (accessToken) {
       config.headers['Authorization'] = accessToken;
-      console.log('Setting Authorization header:', accessToken);
     }
+    
+    // Dispatch loading started event
+    dispatchLoadingEvent(config.url || '', true, config.method || 'get');
     
     return config;
   },
@@ -37,8 +54,17 @@ apiClient.interceptors.request.use(
 
 // error handling
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Dispatch loading ended event
+    dispatchLoadingEvent(response.config.url || '', false, response.config.method || 'get');
+    return response;
+  },
   (error) => {
+    // Dispatch loading ended event for errors too
+    if (error.config) {
+      dispatchLoadingEvent(error.config.url || '', false, error.config.method || 'get');
+    }
+    
     if (error.response) {
       console.error('API Error Response:', {
         status: error.response.status,

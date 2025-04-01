@@ -7,10 +7,11 @@ import {
   Heading,
   Text,
   Divider,
-  Spinner,
   Flex,
   Image,
   Container,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticleById } from '../../store/actions/articleActions';
@@ -19,6 +20,7 @@ import CommentsSection from '../../components/CommentsSection';
 import { getCommentsForArticle } from '../../api/commentApi';
 import { Comment } from '../../types/comment';
 import { config } from '../../config';
+import LoadingState from '../../components/LoadingState';
 
 const ArticleDetail: React.FC = () => {
   const { articleId } = useParams<{ articleId: string }>();
@@ -58,26 +60,24 @@ const ArticleDetail: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <Flex justify="center" mt={10}>
-        <Spinner size="xl" />
-      </Flex>
-    );
+    return <LoadingState text="Loading article..." fullPage />;
   }
 
   if (error) {
     return (
-      <Box>
-        <Text color="red.500">Error: {error}</Text>
-      </Box>
+      <Alert status="error" variant="solid">
+        <AlertIcon />
+        Error loading article: {error}
+      </Alert>
     );
   }
 
   if (!currentArticle) {
     return (
-      <Box>
-        <Text>Article not found</Text>
-      </Box>
+      <Alert status="warning">
+        <AlertIcon />
+        Article not found
+      </Alert>
     );
   }
 
@@ -99,6 +99,7 @@ const ArticleDetail: React.FC = () => {
               alt={currentArticle.title}
               borderRadius="md"
               width="100%"
+              fallbackSrc="https://via.placeholder.com/800x400?text=Image+Unavailable"
             />
           </Box>
         )}

@@ -11,12 +11,20 @@ interface ArticleResponse {
   items: Article[];
 }
 
-// fetch all articles
+interface FetchArticlesParams {
+  offset?: number;
+  limit?: number;
+}
+
+// fetch all articles with pagination
 export const fetchArticles = createAsyncThunk(
   'articles/fetchArticles',
-  async (_, { rejectWithValue }) => {
+  async (params: FetchArticlesParams = {}, { rejectWithValue }) => {
     try {
-      const response = await apiClient.get<ArticleResponse>('/articles');
+      const { offset = 0, limit = 100 } = params;
+      const response = await apiClient.get<ArticleResponse>('/articles', {
+        params: { offset, limit }
+      });
       return response.data.items || [];
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch articles');
