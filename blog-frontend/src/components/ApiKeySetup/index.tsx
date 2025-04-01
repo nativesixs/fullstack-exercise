@@ -14,7 +14,6 @@ import {
   Text,
   useToast
 } from '@chakra-ui/react';
-import { setApiKey } from '../../utils/tokenStorage';
 
 interface ApiKeySetupProps {
   isOpen: boolean;
@@ -38,7 +37,8 @@ const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ isOpen, onClose }) => {
       return;
     }
 
-    setApiKey(apiKeyValue);
+    localStorage.setItem('apiKey', apiKeyValue);
+    
     toast({
       title: 'Success',
       description: 'API key has been saved',

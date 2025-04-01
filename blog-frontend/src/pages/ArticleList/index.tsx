@@ -42,26 +42,30 @@ const ArticleList: React.FC = () => {
     );
   }
 
-  if (error) {
-    const apiKeyMissing = error.includes("Failed to fetch articles");
+  if (error && error.includes('API key')) {
     return (
       <Box>
         <Heading as="h1" mb={4}>Recent Articles</Heading>
         <Text color="red.500" mb={4}>Error: {error}</Text>
-        {apiKeyMissing && (
-          <Button 
-            colorScheme="blue" 
-            onClick={() => setIsApiKeyModalOpen(true)}
-          >
-            Set API Key
-          </Button>
-        )}
-        {isApiKeyModalOpen && (
-          <ApiKeySetup 
-            isOpen={isApiKeyModalOpen} 
-            onClose={() => setIsApiKeyModalOpen(false)} 
-          />
-        )}
+        <Button 
+          colorScheme="blue" 
+          onClick={() => setIsApiKeyModalOpen(true)}
+        >
+          Set API Key
+        </Button>
+        <ApiKeySetup 
+          isOpen={isApiKeyModalOpen} 
+          onClose={() => setIsApiKeyModalOpen(false)} 
+        />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box>
+        <Heading as="h1" mb={4}>Recent Articles</Heading>
+        <Text color="red.500" mb={4}>Error: {error}</Text>
       </Box>
     );
   }
@@ -74,7 +78,7 @@ const ArticleList: React.FC = () => {
         <Text>No articles found.</Text>
       ) : (
         <Stack spacing={8}>
-          {Array.isArray(articles) ? articles.map((article) => (
+          {articles.map((article) => (
             <Box key={article.articleId}>
               <Heading as="h2" size="lg" mb={2}>
                 <Link as={RouterLink} to={`/articles/${article.articleId}`} color="blue.600">
@@ -96,7 +100,7 @@ const ArticleList: React.FC = () => {
               
               <Divider mt={6} />
             </Box>
-          )) : <Text>Invalid article data received</Text>}
+          ))}
         </Stack>
       )}
     </Box>

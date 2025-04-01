@@ -1,15 +1,102 @@
-import React from 'react';
-import { Heading, Text, Box } from '@chakra-ui/react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import ReactMarkdown from 'react-markdown';
+import {
+  Box,
+  Heading,
+  Text,
+  Divider,
+  Spinner,
+  Flex,
+  Image,
+  Container,
+} from '@chakra-ui/react';
+import { AppDispatch, RootState } from '../../store/store';
+import { fetchArticleById } from '../../store/actions/articleActions';
+import { format } from 'date-fns';
+import CommentsSection from '../../components/CommentsSection';
 
 const ArticleDetail: React.FC = () => {
   const { articleId } = useParams<{ articleId: string }>();
-  
+  const dispatch = useDispatch<AppDispatch>();
+  const { currentArticle, loading, error } = useSelector((state: RootState) => state.articles);
+
+  useEffect(() => {
+    if (articleId) {
+      dispatch(fetchArticleById(articleId));
+    }
+  }, [dispatch, articleId]);
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'MMMM d, yyyy');
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  if (loading) {
+    return (
+      <Flex justify="center" mt={10}>
+        <Spinner size="xl" />
+      </Flex>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box>
+        <Text color="red.500">Error: {error}</Text>
+      </Box>
+    );
+  }
+
+  if (!currentArticle) {
+    return (
+      <Box>
+        <Text>Article not found</Text>
+      </Box>
+    );
+  }
+
   return (
-    <Box>
-      <Heading as="h1" mb={4}>Article Detail</Heading>
-      <Text>Viewing article with ID: {articleId}</Text>
-    </Box>
+    <Container maxW="container.md">
+      <Box mb={8}>
+        <Heading as="h1" size="2xl" mb={4}>
+          {currentArticle.title}
+        </Heading>
+        
+        <Text color="gray.600" mb={6}>
+          {formatDate(currentArticle.createdAt)}
+        </Text>
+        
+        {currentArticle.imageId && (
+          <Box mb={6}>
+            <Image
+              src={`https://fullstack.exercise.applifting.cz/images/${currentArticle.imageId}`}
+              alt={currentArticle.title}
+              borderRadius="md"
+              width="100%"
+            />
+          </Box>
+        )}
+        
+        <Text fontSize="lg" fontWeight="medium" mb={6}>
+          {currentArticle.perex}
+        </Text>
+        
+        <Divider mb={6} />
+        
+        <Box className="markdown-content">
+          <ReactMarkdown>{currentArticle.content}</ReactMarkdown>
+        </Box>
+      </Box>
+      
+      <Divider my={8} />
+      
+      <CommentsSection articleId={currentArticle.articleId} comments={currentArticle.comments || []} />
+    </Container>
   );
 };
 

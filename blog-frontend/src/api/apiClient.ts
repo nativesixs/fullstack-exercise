@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://fullstack.exercise.applifting.cz';
+const API_URL = 'https://fullstack.exercise.applifting.cz';
 
 const apiClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,20 +11,23 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    const apiKey = localStorage.getItem('blog_api_key');
-    const token = localStorage.getItem('blog_access_token');
+    const apiKey = localStorage.getItem('apiKey');
     
-    if (apiKey && config.headers) {
+    if (apiKey) {
       config.headers['X-API-KEY'] = apiKey;
     }
     
-    if (token && config.headers) {
-      config.headers['Authorization'] = token;
+    const accessToken = localStorage.getItem('blog_access_token');
+    
+    if (accessToken) {
+      config.headers['Authorization'] = accessToken;
     }
     
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 export default apiClient;

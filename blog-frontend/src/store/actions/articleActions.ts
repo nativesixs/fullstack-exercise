@@ -1,63 +1,83 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import * as articleApi from '../../api/articleApi';
+import apiClient from '../../api/apiClient';
 import { Article, ArticleDetail } from '../../types/article';
 
+interface ArticleResponse {
+  pagination: {
+    offset: number;
+    limit: number;
+    total: number;
+  };
+  items: Article[];
+}
+
+// fetch all articles
 export const fetchArticles = createAsyncThunk(
   'articles/fetchArticles',
   async (_, { rejectWithValue }) => {
     try {
-      const articles = await articleApi.getArticles();
-      return articles;
-    } catch (error) {
-      return rejectWithValue('Failed to fetch articles');
+      const response = await apiClient.get<ArticleResponse>('/articles');
+      return response.data.items || [];
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch articles');
     }
   }
 );
 
+// fetch article by ID
 export const fetchArticleById = createAsyncThunk(
   'articles/fetchArticleById',
-  async (id: string, { rejectWithValue }) => {
+  async (articleId: string, { rejectWithValue }) => {
     try {
-      const article = await articleApi.getArticleById(id);
-      return article;
-    } catch (error) {
-      return rejectWithValue('Failed to fetch article');
+      const response = await apiClient.get<ArticleDetail>(`/articles/${articleId}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch article');
     }
   }
 );
 
+// create article
 export const createArticle = createAsyncThunk(
   'articles/createArticle',
-  async (article: Partial<ArticleDetail>, { rejectWithValue }) => {
+  async (articleData: Partial<ArticleDetail>, { rejectWithValue }) => {
     try {
-      const newArticle = await articleApi.createArticle(article);
-      return newArticle;
-    } catch (error) {
-      return rejectWithValue('Failed to create article');
+      const response = await apiClient.post<ArticleDetail>('/articles', articleData);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create article');
     }
   }
 );
 
+// update article
 export const updateArticle = createAsyncThunk(
   'articles/updateArticle',
-  async ({ id, article }: { id: string; article: Partial<ArticleDetail> }, { rejectWithValue }) => {
+  async (
+    { articleId, articleData }: { articleId: string; articleData: Partial<ArticleDetail> },
+    { rejectWithValue }
+  ) => {
     try {
-      const updatedArticle = await articleApi.updateArticle(id, article);
-      return updatedArticle;
-    } catch (error) {
-      return rejectWithValue('Failed to update article');
+      const response = await apiClient.patch<ArticleDetail>(
+        `/articles/${articleId}`,
+        articleData
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update article');
     }
   }
 );
 
+// delete article
 export const deleteArticle = createAsyncThunk(
   'articles/deleteArticle',
-  async (id: string, { rejectWithValue }) => {
+  async (articleId: string, { rejectWithValue }) => {
     try {
-      await articleApi.deleteArticle(id);
-      return id;
-    } catch (error) {
-      return rejectWithValue('Failed to delete article');
+      await apiClient.delete(`/articles/${articleId}`);
+      return articleId;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete article');
     }
   }
 );
