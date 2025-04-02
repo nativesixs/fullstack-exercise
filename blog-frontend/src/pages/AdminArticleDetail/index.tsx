@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -28,7 +28,6 @@ const AdminArticleDetail: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const toast = useToast();
-  
   const { currentArticle, loading, error } = useSelector((state: RootState) => state.articles);
 
   const [title, setTitle] = useState('');
@@ -136,6 +135,18 @@ const AdminArticleDetail: React.FC = () => {
     setImageId(undefined);
   };
 
+  const handleContentChange = useCallback((value: string) => {
+    setContent(value);
+  }, []);
+
+  const editorOptions = React.useMemo(() => {
+    return {
+      spellChecker: false,
+      placeholder: 'Write your article content here...',
+      status: false,
+    };
+  }, []);
+
   if (loading) {
     return (
       <Flex justify="center" mt={10}>
@@ -193,12 +204,8 @@ const AdminArticleDetail: React.FC = () => {
             <Box border={validationErrors.content ? '1px solid red' : '1px solid #E2E8F0'} borderRadius="md">
               <SimpleMDE 
                 value={content}
-                onChange={setContent}
-                options={{
-                  spellChecker: false,
-                  placeholder: 'Write your article content here...',
-                  status: false,
-                }}
+                onChange={handleContentChange}
+                options={editorOptions}
               />
             </Box>
             {validationErrors.content && (

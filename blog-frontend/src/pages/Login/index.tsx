@@ -7,7 +7,6 @@ import {
   Input,
   Heading,
   VStack,
-  Text,
   FormErrorMessage,
   useToast,
   Flex,
@@ -83,39 +82,42 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Container maxW="container.sm" py={10}>
+    <Container maxW="container.sm" py={20}>
       <Flex minH="50vh" align="center" justify="center">
         <Box 
           bg="white" 
-          p={{ base: 6, md: 8 }} 
-          borderRadius="lg" 
-          boxShadow="sm"
+          p={10}
+          borderRadius="xl"
+          boxShadow="0 10px 25px rgba(0, 0, 0, 0.08)"
           w="100%" 
-          maxW="400px"
+          maxW="480px"
+          border="1px solid"
+          borderColor="gray.100"
         >
-          <Heading as="h1" size="lg" mb={6} textAlign="center" color="gray.800">
+          <Heading as="h1" size="lg" mb={8} textAlign="center" color="gray.800">
             Log In
           </Heading>
           
           {error && (
-            <Alert status="error" mb={6} borderRadius="md">
+            <Alert status="error" mb={8} borderRadius="md">
               <AlertIcon />
               {error}
             </Alert>
           )}
           
           <Box as="form" onSubmit={handleSubmit}>
-            <VStack spacing={5}>
+            <VStack spacing={6}>
               <FormControl isInvalid={!!errors.username} isRequired>
                 <FormLabel fontWeight="medium">Username</FormLabel>
                 <Input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="johndoe"
+                  placeholder="john doe"
                   bg="white"
                   borderColor="gray.300"
-                  size="md"
+                  size="lg"
+                  height="50px"
                 />
                 <FormErrorMessage>{errors.username}</FormErrorMessage>
               </FormControl>
@@ -129,7 +131,8 @@ const Login: React.FC = () => {
                   placeholder="********"
                   bg="white"
                   borderColor="gray.300"
-                  size="md"
+                  size="lg"
+                  height="50px"
                 />
                 <FormErrorMessage>{errors.password}</FormErrorMessage>
               </FormControl>
@@ -140,14 +143,12 @@ const Login: React.FC = () => {
                 w="100%"
                 mt={4}
                 isLoading={loading}
-                size="md"
+                size="lg"
+                height="50px"
+                fontWeight="600"
               >
                 Log In
               </Button>
-              
-              <Text fontSize="sm" color="gray.500" mt={4} textAlign="center">
-                Don't have an account? Please contact your administrator.
-              </Text>
             </VStack>
           </Box>
         </Box>

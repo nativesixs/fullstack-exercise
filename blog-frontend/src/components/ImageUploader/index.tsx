@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   Flex,
   Spinner,
   useToast,
+  HStack,
 } from '@chakra-ui/react';
 import { uploadImage, deleteImage } from '../../api/imageApi';
 import ApiImage from '../ApiImage';
@@ -29,6 +30,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
+
+  useEffect(() => {
+    setImageId(initialImageId);
+  }, [initialImageId]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,26 +120,36 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <FormLabel>Featured Image</FormLabel>
         
         {imageId ? (
-          <Box position="relative" mb={4} height="200px">
-            <ApiImage 
-              imageId={imageId} 
-              alt="Featured image" 
-              borderRadius="md"
-              height="100%"
-              width="100%"
-              minHeight="0"
-              objectFit="contain"
-            />
-            <Button 
-              size="sm" 
-              colorScheme="red" 
-              onClick={handleRemoveImage}
-              position="absolute"
-              top="5px"
-              right="5px"
-            >
-              Remove
-            </Button>
+          <Box>
+            <Box position="relative" mb={4} height="200px" borderRadius="md" overflow="hidden">
+              <ApiImage 
+                imageId={imageId} 
+                alt="Featured image" 
+                borderRadius="md"
+                height="100%"
+                width="100%"
+                minHeight="0"
+                objectFit="contain"
+              />
+            </Box>
+            <HStack spacing={4}>
+            <Button
+                size="sm"
+                variant="ghost"
+                colorScheme="blue"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Upload new
+              </Button>
+              <Button 
+                size="sm" 
+                colorScheme="red" 
+                variant="ghost"
+                onClick={handleRemoveImage}
+              >
+                Delete
+              </Button>
+            </HStack>
           </Box>
         ) : (
           <Flex
@@ -170,17 +185,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           onChange={handleFileChange}
           display="none"
         />
-        
-        {!imageId && (
-          <Button
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            isLoading={isUploading}
-            isDisabled={isUploading}
-          >
-            Select Image
-          </Button>
-        )}
         
         {error && (
           <Text color="red.500" fontSize="sm" mt={2}>

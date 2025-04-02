@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Heading, Text, Flex, Link } from '@chakra-ui/react';
+import { Box, Heading, Text, Flex, Link, HStack, Badge } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Article } from '../../types/article';
@@ -51,15 +51,17 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
             </Link>
           </Heading>
           
-          <Text color="gray.500" fontSize="sm" mb={3}>
-            {formatDate(article.createdAt)}
-          </Text>
+          <HStack spacing={2} mb={3} color="gray.600">
+            <Text fontWeight="medium">Admin</Text>
+            <Text>•</Text>
+            <Text fontSize="sm">{formatDate(article.createdAt)}</Text>
+          </HStack>
           
           <Text mb={4} noOfLines={3} color="gray.700">
             {article.perex}
           </Text>
           
-          <Flex>
+          <HStack spacing={4} align="center">
             <Link 
               as={RouterLink} 
               to={`/articles/${article.articleId}`} 
@@ -69,7 +71,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
             >
               Read whole article
             </Link>
-          </Flex>
+            
+            <Badge colorScheme="blue" borderRadius="full" px={2}>
+              0 comments
+            </Badge>
+          </HStack>
         </Box>
       </Flex>
     </Box>

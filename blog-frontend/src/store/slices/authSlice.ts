@@ -1,14 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { login, logout } from '../actions/authActions';
 import { getAccessToken } from '../../utils/tokenStorage';
-
-export const checkAuthentication = createAsyncThunk(
-  'auth/check',
-  async (_, { dispatch }) => {
-    const token = getAccessToken();
-    return !!token;
-  }
-);
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -28,6 +20,9 @@ const authSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    checkAuthentication: (state) => {
+      state.isAuthenticated = !!getAccessToken();
     }
   },
   extraReducers: (builder) => {
@@ -46,12 +41,9 @@ const authSlice = createSlice({
       })
       .addCase(logout.fulfilled, (state) => {
         state.isAuthenticated = false;
-      })
-      .addCase(checkAuthentication.fulfilled, (state, action) => {
-        state.isAuthenticated = action.payload;
       });
   }
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, checkAuthentication } = authSlice.actions;
 export default authSlice.reducer;

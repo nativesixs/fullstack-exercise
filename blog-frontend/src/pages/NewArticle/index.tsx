@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -111,6 +111,18 @@ const NewArticle: React.FC = () => {
     setImageId(undefined);
   };
 
+  const handleContentChange = useCallback((value: string) => {
+    setContent(value);
+  }, []);
+
+  const editorOptions = React.useMemo(() => {
+    return {
+      spellChecker: false,
+      placeholder: 'Write your article content here...',
+      status: false,
+    };
+  }, []);
+
   return (
     <Box>
       <Heading as="h1" mb={6}>Create New Article</Heading>
@@ -150,12 +162,8 @@ const NewArticle: React.FC = () => {
             <Box border={validationErrors.content ? '1px solid red' : '1px solid #E2E8F0'} borderRadius="md">
               <SimpleMDE 
                 value={content}
-                onChange={setContent}
-                options={{
-                  spellChecker: false,
-                  placeholder: 'Write your article content here...',
-                  status: false,
-                }}
+                onChange={handleContentChange}
+                options={editorOptions}
               />
             </Box>
             {validationErrors.content && (

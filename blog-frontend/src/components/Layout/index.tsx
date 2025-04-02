@@ -11,7 +11,12 @@ import {
   Divider,
   useColorModeValue,
   Spacer,
-  Text
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Avatar,
+  IconButton
 } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
@@ -112,13 +117,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
               
               {isAuthenticated ? (
-                <Button 
-                  onClick={handleLogout}
-                  variant="outline"
-                  size="sm"
-                >
-                  Logout
-                </Button>
+                <Menu>
+                  <MenuButton
+                    as={IconButton}
+                    variant="unstyled"
+                    aria-label="User options"
+                    icon={
+                      <HStack>
+                        <Avatar size="sm" name="Admin" bg="blue.500" />
+                      </HStack>
+                    }
+                  />
+                  <MenuList>
+                    <MenuItem 
+                      as={RouterLink} 
+                      to="/admin/articles"
+                      fontWeight={isActive('/admin/articles') ? "600" : "400"}
+                    >
+                      My Articles
+                    </MenuItem>
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </MenuList>
+                </Menu>
               ) : (
                 <Button 
                   as={RouterLink} 
