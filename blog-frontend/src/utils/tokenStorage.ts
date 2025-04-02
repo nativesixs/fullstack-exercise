@@ -1,4 +1,4 @@
-import config from '../config';
+import { config } from '../config';
 
 // Get API key from storage
 export const getApiKey = (): string | null => {
@@ -17,7 +17,12 @@ export const removeApiKey = (): void => {
 
 // Get access token from storage
 export const getAccessToken = (): string | null => {
-  return localStorage.getItem(config.AUTH_TOKEN_KEY);
+  const token = localStorage.getItem(config.AUTH_TOKEN_KEY);
+  // Only return the token if it's not expired
+  if (token && !isTokenExpired()) {
+    return token;
+  }
+  return null;
 };
 
 // Set access token in storage - now accepts both token and expiry
@@ -49,4 +54,10 @@ export const isTokenExpired = (): boolean => {
   
   // Check if current time is past the expiry time
   return Date.now() > expiry;
+};
+
+// Check if the user is authenticated (has valid token)
+export const isAuthenticated = (): boolean => {
+  const token = getAccessToken();
+  return !!token;
 };

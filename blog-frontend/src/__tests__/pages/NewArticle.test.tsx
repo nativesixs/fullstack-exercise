@@ -2,10 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 import NewArticle from '../../pages/NewArticle';
-
-const mockStore = configureStore([]);
+import createMockStore from '../../utils/testing/mockStore';
 
 jest.mock('react-simplemde-editor', () => {
   return function MockSimpleMDE(props: any) {
@@ -34,7 +32,7 @@ describe('NewArticle Page', () => {
   let store: any;
 
   beforeEach(() => {
-    store = mockStore({
+    store = createMockStore({
       articles: {
         loading: false,
         error: null

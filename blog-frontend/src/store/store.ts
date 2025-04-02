@@ -1,7 +1,9 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
 import authReducer from './slices/authSlice';
-import articlesReducer from './slices/articlesSlice';
+import articlesReducer from './slices/articlesEntitySlice';
 
+// Create store with typed reducers
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -9,11 +11,9 @@ export const store = configureStore({
   },
 });
 
+// Export store types
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-export type AppThunk<ReturnType = void> = ThunkAction<
-  ReturnType,
-  RootState,
-  unknown,
-  Action<string>
->;
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+
+export default store;

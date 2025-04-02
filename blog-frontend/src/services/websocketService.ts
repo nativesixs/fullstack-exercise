@@ -1,79 +1,137 @@
-import config from '../config';
+import { config } from '../config';
+import { Comment } from '../types/comment';
 
-export interface Comment {
-  commentId: string;
-  articleId: string;
-  author: string;
-  content: string;
-  postedAt: string;
-  score: number;
-}
+type CommentCallback = (comment: Comment) => void;
 
-export interface WebSocketService {
-  connect(): void;
-  disconnect(): void;
-  subscribeToComments(callback: (comment: Comment) => void): void;
-  unsubscribeFromComments(): void;
-}
+class WebSocketService {
+  private ws: WebSocket | null = null;
+  private subscribers: CommentCallback[] = [];
+  private reconnectInterval: NodeJS.Timeout | null = null;
+  private isConnecting: boolean = false;
 
-class RealWebSocketService implements WebSocketService {
-  private socket: WebSocket | null = null;
-  private commentCallback: ((comment: Comment) => void) | null = null;
-  private currentArticleId: string | null = null;
+  /**
+   * Connect to the WebSocket server
+   */
+  connect = () => {
+    if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
+      return; // Already connected or connecting
+    }
 
-  connect(): void {
-    if (!config.ENABLE_WEBSOCKETS) return;
+    if (this.isConnecting) {
+      return; // Already attempting to connect
+    }
+
+    this.isConnecting = true;
 
     try {
-      this.socket = new WebSocket('wss://fullstack.exercise.applifting.cz/ws');
-      
-      this.socket.onopen = () => {
-        console.log('WebSocket connected');
+      const apiKey = localStorage.getItem(config.API_KEY_STORAGE_KEY);
+      if (!apiKey) {
+        console.error('API Key is missing');
+        this.isConnecting = false;
+        return;
+      }
+
+      // Use the API_URL but replace http with ws for the WebSocket connection
+      const wsUrl = config.API_URL.replace(/^http/, 'ws');
+      this.ws = new WebSocket(`${wsUrl}/ws?apiKey=${apiKey}`);
+
+      this.ws.onopen = () => {
+        console.log('WebSocket connection established');
+        this.isConnecting = false;
+        // Clear any reconnect interval
+        if (this.reconnectInterval) {
+          clearInterval(this.reconnectInterval);
+          this.reconnectInterval = null;
+        }
       };
-      
-      this.socket.onmessage = (event) => {
+
+      this.ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
-          if (data.type === 'comment' && this.commentCallback && data.payload.articleId === this.currentArticleId) {
-            this.commentCallback(data.payload);
-          }
+          const comment = JSON.parse(event.data) as Comment;
+          this.notifySubscribers(comment);
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
       };
-      
-      this.socket.onerror = (error) => {
+
+      this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
+        this.isConnecting = false;
       };
-      
-      this.socket.onclose = () => {
-        console.log('WebSocket disconnected');
+
+      this.ws.onclose = () => {
+        console.log('WebSocket connection closed');
+        this.isConnecting = false;
+        // Attempt to reconnect
+        if (!this.reconnectInterval) {
+          this.reconnectInterval = setInterval(() => {
+            this.connect();
+          }, 5000); // Try to reconnect every 5 seconds
+        }
       };
     } catch (error) {
-      console.error('Failed to connect to WebSocket:', error);
+      console.error('Error connecting to WebSocket:', error);
+      this.isConnecting = false;
     }
-  }
+  };
 
-  disconnect(): void {
-    if (this.socket) {
-      this.socket.close();
-      this.socket = null;
+  /**
+   * Disconnect from the WebSocket server
+   */
+  disconnect = () => {
+    if (this.reconnectInterval) {
+      clearInterval(this.reconnectInterval);
+      this.reconnectInterval = null;
     }
-  }
 
-  subscribeToComments(callback: (comment: Comment) => void): void {
-    this.commentCallback = callback;
-  }
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+    
+    this.isConnecting = false;
+  };
 
-  unsubscribeFromComments(): void {
-    this.commentCallback = null;
-  }
+  /**
+   * Subscribe to comment updates
+   */
+  subscribeToComments = (callback: CommentCallback) => {
+    if (!this.subscribers.includes(callback)) {
+      this.subscribers.push(callback);
+    }
+  };
 
-  setArticleId(articleId: string): void {
-    this.currentArticleId = articleId;
-  }
+  /**
+   * Unsubscribe from comment updates
+   */
+  unsubscribeFromComments = (callback: CommentCallback) => {
+    this.subscribers = this.subscribers.filter(cb => cb !== callback);
+  };
+
+  /**
+   * Notify all subscribers about a new comment
+   */
+  private notifySubscribers = (comment: Comment) => {
+    this.subscribers.forEach(callback => {
+      try {
+        callback(comment);
+      } catch (error) {
+        console.error('Error in comment subscriber:', error);
+      }
+    });
+  };
+
+  /**
+   * Send a message through the WebSocket
+   */
+  send = (data: any) => {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(data));
+    } else {
+      console.error('WebSocket is not connected');
+    }
+  };
 }
 
-const websocketService: WebSocketService = new RealWebSocketService();
-
+const websocketService = new WebSocketService();
 export default websocketService;

@@ -1,18 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
-  Button,
   FormControl,
   FormLabel,
   Input,
   Text,
-  Flex,
-  Spinner,
   useToast,
-  HStack,
 } from '@chakra-ui/react';
 import { uploadImage, deleteImage } from '../../api/imageApi';
-import ApiImage from '../ApiImage';
+import ImagePreview from './components/ImagePreview';
+import UploadDropzone from './components/UploadDropzone';
 
 interface ImageUploaderProps {
   initialImageId?: string;
@@ -35,17 +32,25 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     setImageId(initialImageId);
   }, [initialImageId]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const validateFile = (file: File): boolean => {
     if (!file.type.startsWith('image/')) {
       setError('Please upload an image file (jpeg, png, etc.)');
-      return;
+      return false;
     }
 
     if (file.size > 2 * 1024 * 1024) {
       setError('Image size should be less than 2MB');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!validateFile(file)) {
       return;
     }
 
@@ -120,62 +125,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <FormLabel>Featured Image</FormLabel>
         
         {imageId ? (
-          <Box>
-            <Box position="relative" mb={4} height="200px" borderRadius="md" overflow="hidden">
-              <ApiImage 
-                imageId={imageId} 
-                alt="Featured image" 
-                borderRadius="md"
-                height="100%"
-                width="100%"
-                minHeight="0"
-                objectFit="contain"
-              />
-            </Box>
-            <HStack spacing={4}>
-            <Button
-                size="sm"
-                variant="ghost"
-                colorScheme="blue"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Upload new
-              </Button>
-              <Button 
-                size="sm" 
-                colorScheme="red" 
-                variant="ghost"
-                onClick={handleRemoveImage}
-              >
-                Delete
-              </Button>
-            </HStack>
-          </Box>
+          <ImagePreview 
+            imageId={imageId} 
+            onRemove={handleRemoveImage}
+            onUploadNew={() => fileInputRef.current?.click()}
+          />
         ) : (
-          <Flex
-            border="2px dashed"
-            borderColor="gray.300"
-            borderRadius="md"
-            p={6}
-            direction="column"
-            align="center"
-            justify="center"
-            textAlign="center"
-            mb={4}
-            cursor="pointer"
+          <UploadDropzone 
+            isUploading={isUploading}
             onClick={() => fileInputRef.current?.click()}
-          >
-            {isUploading ? (
-              <Spinner size="lg" mb={2} />
-            ) : (
-              <>
-                <Text mb={2}>Drag and drop an image or click to browse</Text>
-                <Text fontSize="sm" color="gray.500">
-                  JPG, PNG or GIF • Max size 2MB
-                </Text>
-              </>
-            )}
-          </Flex>
+          />
         )}
         
         <Input

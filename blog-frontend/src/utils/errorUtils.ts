@@ -25,6 +25,25 @@ export interface TypedError {
 }
 
 /**
+ * Extract error message from various error types
+ */
+export const extractErrorMessage = (error: unknown): string => {
+  if (typeof error === 'string') {
+    return error;
+  }
+  
+  if (error instanceof Error) {
+    return error.message;
+  }
+  
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as any).message);
+  }
+  
+  return 'An unknown error occurred';
+};
+
+/**
  * Format error message for display
  */
 export const formatErrorMessage = (error: unknown): string => {
@@ -94,56 +113,38 @@ export const getErrorDetails = (error: unknown): TypedError => {
         case 404:
           return {
             type: ErrorType.NOT_FOUND,
-            message: 'The requested resource was not found.',
+            message: 'Resource not found.',
             statusCode,
             data: axiosError.response.data,
             originalError: error,
           };
-        case 400:
+        case 422:
           return {
             type: ErrorType.VALIDATION,
-            message: 'The request contains invalid data.',
-            statusCode,
-            data: axiosError.response.data,
-            originalError: error,
-          };
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          return {
-            type: ErrorType.SERVER,
-            message: 'Server error. Please try again later.',
+            message: 'Validation failed. Please check your input.',
             statusCode,
             data: axiosError.response.data,
             originalError: error,
           };
         default:
-          return {
-            ...defaultError,
-            message: `Error code ${statusCode}`,
-            statusCode,
-            data: axiosError.response.data,
-          };
+          if (statusCode >= 500) {
+            return {
+              type: ErrorType.SERVER,
+              message: 'Server error occurred. Please try again later.',
+              statusCode,
+              data: axiosError.response.data,
+              originalError: error,
+            };
+          }
       }
-    }
-    
-    if (axiosError.request) {
+    } else if (axiosError.request) {
       return {
         type: ErrorType.NETWORK,
-        message: 'Network error. Please check your connection.',
+        message: 'Network error. Please check your internet connection.',
         originalError: error,
       };
     }
   }
   
   return defaultError;
-};
-
-/**
- * Check if an error is of a specific type
- */
-export const isErrorType = (error: unknown, type: ErrorType): boolean => {
-  const errorDetails = getErrorDetails(error);
-  return errorDetails.type === type;
 };

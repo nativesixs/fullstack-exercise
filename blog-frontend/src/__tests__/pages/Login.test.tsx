@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 import Login from '../../pages/Login';
 import { login } from '../../store/actions/authActions';
+import createMockStore from '../../utils/testing/mockStore';
 
 jest.mock('../../store/actions/authActions', () => ({
   login: jest.fn(() => ({ type: 'auth/login/fulfilled' }))
@@ -16,15 +16,13 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => ({ state: { from: { pathname: '/admin/articles' } } })
 }));
 
-const mockStore = configureStore([]);
-
 describe('Login Page', () => {
   let store: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    store = mockStore({
+    store = createMockStore({
       auth: {
         loading: false,
         error: null,
@@ -69,7 +67,7 @@ describe('Login Page', () => {
   });
 
   it('shows loading state when logging in', () => {
-    store = mockStore({
+    store = createMockStore({
       auth: {
         loading: true,
         error: null,
@@ -84,7 +82,7 @@ describe('Login Page', () => {
   });
 
   it('shows error message when login fails', () => {
-    store = mockStore({
+    store = createMockStore({
       auth: {
         loading: false,
         error: 'Invalid credentials',

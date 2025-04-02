@@ -25,30 +25,26 @@ const ArticleDetail: React.FC = () => {
   const { articleId } = useParams<{ articleId: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const { currentArticle, loading, error } = useSelector((state: RootState) => state.articles);
-  
-  const [mockComments, setMockComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     if (articleId) {
       dispatch(fetchArticleById(articleId));
       
-      if (config.USE_MOCKS) {
-        const comments = getCommentsForArticle(articleId);
-        setMockComments(comments);
-      }
+      // Load comments via API
+      const fetchComments = async () => {
+        try {
+          const fetchedComments = await getCommentsForArticle(articleId);
+          setComments(fetchedComments);
+        } catch (error) {
+          console.error("Error fetching comments:", error);
+          setComments([]);
+        }
+      };
+      
+      fetchComments();
     }
   }, [dispatch, articleId]);
-
-  let comments: Comment[];
-  
-  if (config.USE_MOCKS) {
-    const allComments = [...(currentArticle?.comments || []), ...mockComments];
-    comments = allComments.filter((comment, index, self) => 
-      index === self.findIndex(c => c.commentId === comment.commentId)
-    );
-  } else {
-    comments = currentArticle?.comments || [];
-  }
 
   const formatDate = (dateString: string) => {
     try {
@@ -100,26 +96,33 @@ const ArticleDetail: React.FC = () => {
               width="100%"
               height="100%"
               minHeight="0"
-              objectFit="contain"
-              fallbackText="Image unavailable"
+              objectFit="cover"
+              fallbackText="Article image"
             />
           </Box>
         )}
         
-        <Text fontSize="xl" fontWeight="medium" mb={8} color="gray.700">
-          {currentArticle.perex}
-        </Text>
+        <Box mb={6}>
+          <Text fontSize="xl" fontWeight="medium" lineHeight="1.6">
+            {currentArticle.perex}
+          </Text>
+        </Box>
         
-        <Divider mb={8} />
+        <Divider mb={8} borderColor="gray.300" />
         
-        <Box className="markdown-content" fontSize="lg" lineHeight="1.8" color="gray.800">
-          <ReactMarkdown>{currentArticle.content}</ReactMarkdown>
+        <Box className="markdown-content">
+          <ReactMarkdown>
+            {currentArticle.content}
+          </ReactMarkdown>
         </Box>
       </Box>
       
-      <Divider my={10} />
-      
-      <CommentsSection articleId={currentArticle.articleId} comments={comments} />
+      <Box mt={12}>
+        <CommentsSection 
+          articleId={currentArticle.articleId}
+          comments={comments}
+        />
+      </Box>
     </Container>
   );
 };

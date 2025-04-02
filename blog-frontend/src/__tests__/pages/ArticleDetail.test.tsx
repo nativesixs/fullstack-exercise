@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 import ArticleDetail from '../../pages/ArticleDetail';
 import { fetchArticleById } from '../../store/actions/articleActions';
+import createMockStore from '../../utils/testing/mockStore';
 
 jest.mock('../../store/actions/articleActions', () => ({
   fetchArticleById: jest.fn()
@@ -31,14 +31,18 @@ jest.mock('../../components/ApiImage', () => {
   };
 });
 
+jest.mock('react-markdown', () => {
+  return function MockMarkdown(props: any) {
+    return <div data-testid="mock-markdown">{props.children}</div>;
+  };
+});
+
 jest.mock('../../config', () => ({
   config: {
     USE_MOCKS: false,
     API_URL: 'https://mocked-api.com'
   }
 }));
-
-const mockStore = configureStore([]);
 
 describe('ArticleDetail Page', () => {
   let store: any;
@@ -47,7 +51,7 @@ describe('ArticleDetail Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    store = mockStore({
+    store = createMockStore({
       articles: {
         currentArticle: {
           articleId: 'article-123',
@@ -106,7 +110,7 @@ describe('ArticleDetail Page', () => {
   });
 
   it('shows loading state when article is loading', () => {
-    store = mockStore({
+    store = createMockStore({
       articles: {
         currentArticle: null,
         loading: true,
@@ -120,7 +124,7 @@ describe('ArticleDetail Page', () => {
   });
 
   it('shows error message when article loading fails', () => {
-    store = mockStore({
+    store = createMockStore({
       articles: {
         currentArticle: null,
         loading: false,
@@ -134,7 +138,7 @@ describe('ArticleDetail Page', () => {
   });
 
   it('shows "Article not found" when article is null but not loading', () => {
-    store = mockStore({
+    store = createMockStore({
       articles: {
         currentArticle: null,
         loading: false,

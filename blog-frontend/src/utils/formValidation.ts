@@ -1,6 +1,4 @@
-/**
- * Shared form validation utilities
- */
+import { isRequired, minLength, validateForm } from './validationUtils';
 
 // Article form validation
 export interface ArticleFormData {
@@ -16,30 +14,11 @@ export interface ArticleFormErrors {
 }
 
 export const validateArticleForm = (data: ArticleFormData): { isValid: boolean; errors: ArticleFormErrors } => {
-  const errors: ArticleFormErrors = {
-    title: '',
-    perex: '',
-    content: '',
-  };
-  
-  let isValid = true;
-  
-  if (!data.title.trim()) {
-    errors.title = 'Title is required';
-    isValid = false;
-  }
-  
-  if (!data.perex.trim()) {
-    errors.perex = 'Perex is required';
-    isValid = false;
-  }
-  
-  if (!data.content.trim()) {
-    errors.content = 'Content is required';
-    isValid = false;
-  }
-  
-  return { isValid, errors };
+  return validateForm<ArticleFormData>(data, {
+    title: value => isRequired(value, 'Title is required'),
+    perex: value => isRequired(value, 'Perex is required'),
+    content: value => isRequired(value, 'Content is required')
+  }) as { isValid: boolean; errors: ArticleFormErrors };
 };
 
 // Login form validation
@@ -54,24 +33,10 @@ export interface LoginFormErrors {
 }
 
 export const validateLoginForm = (data: LoginFormData): { isValid: boolean; errors: LoginFormErrors } => {
-  const errors: LoginFormErrors = {
-    username: '',
-    password: '',
-  };
-  
-  let isValid = true;
-  
-  if (!data.username.trim()) {
-    errors.username = 'Username is required';
-    isValid = false;
-  }
-  
-  if (!data.password) {
-    errors.password = 'Password is required';
-    isValid = false;
-  }
-  
-  return { isValid, errors };
+  return validateForm<LoginFormData>(data, {
+    username: value => isRequired(value, 'Username is required'),
+    password: value => isRequired(value, 'Password is required')
+  }) as { isValid: boolean; errors: LoginFormErrors };
 };
 
 // Comment form validation
@@ -86,22 +51,8 @@ export interface CommentFormErrors {
 }
 
 export const validateCommentForm = (data: CommentFormData): { isValid: boolean; errors: CommentFormErrors } => {
-  const errors: CommentFormErrors = {
-    content: '',
-    author: '',
-  };
-  
-  let isValid = true;
-  
-  if (!data.content.trim()) {
-    errors.content = 'Comment text is required';
-    isValid = false;
-  }
-  
-  if (data.author !== undefined && !data.author.trim()) {
-    errors.author = 'Author name is required';
-    isValid = false;
-  }
-  
-  return { isValid, errors };
+  return validateForm<CommentFormData>(data, {
+    content: value => isRequired(value, 'Comment text is required'),
+    author: value => value !== undefined && !value.trim() ? 'Author name is required' : null
+  }) as { isValid: boolean; errors: CommentFormErrors };
 };

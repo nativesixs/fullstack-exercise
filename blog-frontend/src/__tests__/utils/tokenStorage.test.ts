@@ -1,19 +1,42 @@
-import { getApiKey, setApiKey, getAccessToken, setAccessToken, removeAccessToken } from '../../utils/tokenStorage';
+import { 
+  getApiKey, 
+  setApiKey, 
+  getAccessToken, 
+  setAccessToken, 
+  removeAccessToken,
+  isTokenExpired
+} from '../../utils/tokenStorage';
+
+// Mock the config for tests
+jest.mock('../../config', () => ({
+  config: {
+    API_KEY_STORAGE_KEY: 'apiKey',
+    AUTH_TOKEN_KEY: 'blog_access_token',
+    AUTH_TOKEN_EXPIRY_KEY: 'blog_token_expiry'
+  }
+}));
 
 describe('Token Storage Utils', () => {
   let mockStorage: { [key: string]: string } = {};
+  let originalDateNow: () => number;
   
   beforeEach(() => {
     mockStorage = {};
     
+    // Mock localStorage methods
     jest.spyOn(window.localStorage, 'getItem').mockImplementation((key) => mockStorage[key] || null);
     jest.spyOn(window.localStorage, 'setItem').mockImplementation((key, value) => { mockStorage[key] = value.toString(); });
     jest.spyOn(window.localStorage, 'removeItem').mockImplementation((key) => { delete mockStorage[key]; });
+    
+    // Save original Date.now function
+    originalDateNow = Date.now;
     
     jest.clearAllMocks();
   });
 
   afterEach(() => {
+    // Restore original Date.now
+    Date.now = originalDateNow;
     jest.restoreAllMocks();
   });
 
@@ -37,7 +60,11 @@ describe('Token Storage Utils', () => {
 
   describe('Access Token', () => {
     it('should get access token from localStorage', () => {
-      const futureTime = Date.now() + 3600000; // 1 hour in future
+      // Mock Date.now to return a fixed time
+      const currentTime = 1000000;
+      Date.now = jest.fn(() => currentTime);
+      
+      const futureTime = currentTime + 3600000; // 1 hour in future
       mockStorage['blog_access_token'] = 'test-token';
       mockStorage['blog_token_expiry'] = String(futureTime);
       
@@ -48,7 +75,11 @@ describe('Token Storage Utils', () => {
     });
 
     it('should return null if token is expired', () => {
-      const pastTime = Date.now() - 3600000; // 1 hour in past
+      // Mock Date.now to return a fixed time
+      const currentTime = 5000000;
+      Date.now = jest.fn(() => currentTime);
+      
+      const pastTime = currentTime - 3600000; // 1 hour in past
       mockStorage['blog_access_token'] = 'test-token';
       mockStorage['blog_token_expiry'] = String(pastTime);
       
@@ -58,12 +89,14 @@ describe('Token Storage Utils', () => {
     });
 
     it('should set access token with expiry in localStorage', () => {
-      jest.spyOn(Date.prototype, 'getTime').mockReturnValue(1000000);
+      // Mock Date.now to return a fixed time
+      const currentTime = 1000000;
+      Date.now = jest.fn(() => currentTime);
       
       setAccessToken('test-token', 3600);
       
       expect(localStorage.setItem).toHaveBeenCalledWith('blog_access_token', 'test-token');
-      expect(localStorage.setItem).toHaveBeenCalledWith('blog_token_expiry', String(1000000 + 3600 * 1000));
+      expect(localStorage.setItem).toHaveBeenCalledWith('blog_token_expiry', String(currentTime + 3600 * 1000));
       expect(mockStorage['blog_access_token']).toBe('test-token');
     });
 

@@ -30,6 +30,9 @@ export const config = {
   // Feature flags
   ENABLE_WEBSOCKETS: true,
   
+  // Logging
+  LOG_LEVEL: process.env.REACT_APP_LOG_LEVEL || (isDevelopment ? 'debug' : 'error'),
+  
   // Dev flags
   IS_DEVELOPMENT: isDevelopment,
   IS_TEST: isTest,

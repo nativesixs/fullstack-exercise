@@ -1,10 +1,10 @@
 import React from 'react';
-import { render, screen,  waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 import AdminArticleList from '../../pages/AdminArticleList';
 import { fetchArticles } from '../../store/actions/articleActions';
+import createMockStore from '../../utils/testing/mockStore';
 
 jest.mock('../../store/actions/articleActions', () => ({
   fetchArticles: jest.fn(() => ({ type: 'articles/fetchArticles/fulfilled' })),
@@ -16,7 +16,10 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn()
 }));
 
-const mockStore = configureStore([]);
+// Mock the entity adapter selector
+jest.mock('../../store/slices/articlesEntitySlice', () => ({
+  selectAllArticles: (state) => state.articles.articles || []
+}));
 
 describe('AdminArticleList Page', () => {
   let store: any;
@@ -24,7 +27,7 @@ describe('AdminArticleList Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    store = mockStore({
+    store = createMockStore({
       auth: {
         isAuthenticated: true
       },
@@ -44,7 +47,22 @@ describe('AdminArticleList Page', () => {
           }
         ],
         loading: false,
-        error: null
+        error: null,
+        ids: ['article-1', 'article-2'], // Add the ids array for the entity adapter
+        entities: {
+          'article-1': {
+            articleId: 'article-1',
+            title: 'Test Article 1',
+            perex: 'Test perex 1',
+            createdAt: '2023-01-01T12:00:00Z'
+          },
+          'article-2': {
+            articleId: 'article-2',
+            title: 'Test Article 2',
+            perex: 'Test perex 2',
+            createdAt: '2023-01-02T12:00:00Z'
+          }
+        }
       }
     });
   });
@@ -78,6 +96,6 @@ describe('AdminArticleList Page', () => {
   it('shows a "Create New Article" button', () => {
     renderComponent();
     
-    expect(screen.getAllByText('Create New Article')[0]).toBeInTheDocument();
+    expect(screen.getByText('Create New Article')).toBeInTheDocument();
   });
 });

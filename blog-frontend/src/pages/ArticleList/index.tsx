@@ -10,6 +10,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticles } from '../../store/actions/articleActions';
+import { selectAllArticles } from '../../store/slices/articlesEntitySlice';
 import ApiKeySetup from '../../components/ApiKeySetup';
 import ArticleCard from '../../components/ArticleCard';
 import Pagination from '../../components/Pagination';
@@ -19,7 +20,8 @@ const ITEMS_PER_PAGE = 5;
 
 const ArticleList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { articles, loading, error } = useSelector((state: RootState) => state.articles);
+  const articles = useSelector(selectAllArticles);
+  const { loading, error } = useSelector((state: RootState) => state.articles);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
@@ -28,7 +30,7 @@ const ArticleList: React.FC = () => {
     dispatch(fetchArticles({}));
   }, [dispatch]);
 
-  const sortedArticles = [...(articles || [])].sort((a, b) => {
+  const sortedArticles = [...articles].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();
     const dateB = new Date(b.createdAt).getTime();
     return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;

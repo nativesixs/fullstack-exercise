@@ -1,35 +1,52 @@
-import axios, { InternalAxiosRequestConfig } from 'axios';
-import { getApiKey, getAccessToken } from '../utils/tokenStorage';
-import config from '../config';
-import { store } from '../store/store';
+import { createApiClient } from './apiClientBase';
 
-const { API_URL } = config;
+// Create API event for loading state tracking
+export const API_LOADING_EVENT = 'api-loading-state-change';
 
-// Create an instance of axios with a base URL
-const apiClient = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Define the interface for the loading event
+export interface ApiLoadingEvent extends CustomEvent {
+  detail: {
+    url: string;
+    loading: boolean;
+    method: string;
+  };
+}
 
-// Add request interceptor for auth headers and loading state
+// Create event dispatcher for loading states
+export const dispatchLoadingEvent = (url: string, loading: boolean, method: string): void => {
+  const event = new CustomEvent(API_LOADING_EVENT, {
+    detail: { url, loading, method },
+    bubbles: true,
+  }) as ApiLoadingEvent;
+  
+  document.dispatchEvent(event);
+};
+
+// Create and configure the API client with loading events
+const apiClient = createApiClient();
+
+// Add request interceptor for loading state
 apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const apiKey = getApiKey();
-    
-    if (apiKey) {
-      config.headers['X-API-KEY'] = apiKey;
+  (config) => {
+    if (config.url) {
+      dispatchLoadingEvent(config.url, true, config.method || 'get');
     }
-    
-    const accessToken = getAccessToken();
-    if (accessToken) {
-      config.headers['Authorization'] = accessToken;
-    }
-    
     return config;
+  }
+);
+
+// Add response interceptor for loading state
+apiClient.interceptors.response.use(
+  (response) => {
+    if (response.config.url) {
+      dispatchLoadingEvent(response.config.url, false, response.config.method || 'get');
+    }
+    return response;
   },
   (error) => {
+    if (error.config?.url) {
+      dispatchLoadingEvent(error.config.url, false, error.config.method || 'get');
+    }
     return Promise.reject(error);
   }
 );

@@ -140,7 +140,6 @@ export const downvoteComment = async (commentId: string): Promise<Comment> => {
   }
 };
 
-
 export const getCommentsForArticle = (articleId: string): Comment[] => {
   return mockComments[articleId] || [];
 };
