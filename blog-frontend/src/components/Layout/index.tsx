@@ -1,34 +1,33 @@
 import React from 'react';
-import { 
-  Box, 
-  Flex, 
-  Container, 
-  Button, 
-  Heading, 
-  Link, 
-  IconButton, 
-  useColorMode, 
-  Divider,
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Flex,
+  Link,
+  Button,
+  Heading,
   HStack,
-  useBreakpointValue
+  Divider,
+  useColorModeValue,
+  Spacer,
+  Text
 } from '@chakra-ui/react';
-import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../store/store';
 import { logout } from '../../store/actions/authActions';
-import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { colorMode, toggleColorMode } = useColorMode();
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
 
   const handleLogout = () => {
     dispatch(logout());
@@ -66,30 +65,51 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   Recent Articles
                 </Link>
                 
-                {isAuthenticated && (
-                  <Link 
-                    as={RouterLink} 
-                    to="/admin/articles" 
-                    fontWeight={isActive('/admin/articles') ? "600" : "400"}
-                    color={isActive('/admin/articles') ? "brand.500" : "gray.700"}
-                    borderBottom={isActive('/admin/articles') ? "2px solid" : "none"}
-                    borderColor="brand.500"
-                    pb={1}
-                  >
-                    My Articles
-                  </Link>
-                )}
+                <Link 
+                  as={RouterLink} 
+                  to="/about" 
+                  fontWeight={isActive('/about') ? "600" : "400"}
+                  color={isActive('/about') ? "brand.500" : "gray.700"}
+                  borderBottom={isActive('/about') ? "2px solid" : "none"}
+                  borderColor="brand.500"
+                  pb={1}
+                >
+                  About
+                </Link>
               </HStack>
             </HStack>
             
-            <HStack spacing={4}>
-              <IconButton
-                aria-label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}
-                icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-                onClick={toggleColorMode}
-                variant="ghost"
-                size="sm"
-              />
+            <Spacer />
+            
+            <HStack spacing={6}>
+              {isAuthenticated && (
+                <Link 
+                  as={RouterLink} 
+                  to="/admin/articles" 
+                  fontWeight={isActive('/admin/articles') ? "600" : "400"}
+                  color={isActive('/admin/articles') ? "brand.500" : "gray.700"}
+                  borderBottom={isActive('/admin/articles') ? "2px solid" : "none"}
+                  borderColor="brand.500"
+                  pb={1}
+                  mr={4}
+                >
+                  My Articles
+                </Link>
+              )}
+
+              {isAuthenticated && (
+                <Button 
+                  as={RouterLink}
+                  to="/admin/new-article"
+                  variant="ghost"
+                  colorScheme="blue"
+                  size="sm"
+                  leftIcon={<Box as="span" fontSize="lg">+</Box>}
+                  display={{ base: 'none', md: 'flex' }}
+                >
+                  Create new article
+                </Button>
+              )}
               
               {isAuthenticated ? (
                 <Button 
@@ -110,44 +130,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Button>
               )}
               
-              {isAuthenticated && (
-                <Button 
-                  as={RouterLink}
-                  to="/admin/new-article"
-                  colorScheme="blue"
-                  size="sm"
-                  leftIcon={<Box as="span" fontSize="lg">+</Box>}
-                  display={{ base: 'none', md: 'flex' }}
-                >
-                  Create new article
-                </Button>
-              )}
             </HStack>
           </Flex>
         </Container>
         <Divider />
       </Box>
       
-      <Box as="main" flex="1" py={8} bg="gray.50">
+      <Box flex="1" bg={bgColor} pt={8} pb={16}>
         <Container maxW="container.xl">
           {children}
-        </Container>
-      </Box>
-      
-      <Box as="footer" bg="white" py={6} borderTop="1px solid" borderColor="gray.200">
-        <Container maxW="container.xl">
-          <Flex 
-            direction={{ base: 'column', md: 'row' }} 
-            justify="space-between" 
-            alignItems={{ base: 'center', md: 'center' }}
-            gap={{ base: 4, md: 0 }}
-          >
-            <Box color="gray.600" fontSize="sm">© {new Date().getFullYear()} Applifting</Box>
-            <HStack spacing={6} color="gray.600">
-              <Link href="#" fontSize="sm">Privacy Policy</Link>
-              <Link href="#" fontSize="sm">Terms of Service</Link>
-            </HStack>
-          </Flex>
         </Container>
       </Box>
     </Box>

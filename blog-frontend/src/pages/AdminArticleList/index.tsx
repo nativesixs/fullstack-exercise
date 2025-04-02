@@ -21,11 +21,12 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
-  Select,
   TableContainer,
   Badge,
+  Icon,
+  HStack,
 } from '@chakra-ui/react';
-import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
+import { EditIcon, DeleteIcon, TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticles, deleteArticle } from '../../store/actions/articleActions';
@@ -33,6 +34,9 @@ import LoadingState from '../../components/LoadingState';
 import Pagination from '../../components/Pagination';
 
 const ITEMS_PER_PAGE = 10;
+
+type SortField = 'title' | 'perex' | 'author' | 'comments';
+type SortDirection = 'asc' | 'desc';
 
 const AdminArticleList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -43,7 +47,8 @@ const AdminArticleList: React.FC = () => {
   
   const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [sortField, setSortField] = useState<SortField>('title');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   
   const { articles, loading, error } = useSelector((state: RootState) => state.articles);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -93,15 +98,44 @@ const AdminArticleList: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortOrder(e.target.value as 'newest' | 'oldest');
+  const handleSortChange = (field: SortField, direction?: SortDirection) => {
+    if (field === sortField && !direction) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection(direction || 'asc');
+    }
     setCurrentPage(1);
   };
 
   const sortedArticles = [...(articles || [])].sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
-    return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    let valueA, valueB;
+    
+    switch (sortField) {
+      case 'title':
+        valueA = a.title.toLowerCase();
+        valueB = b.title.toLowerCase();
+        break;
+      case 'perex':
+        valueA = a.perex.toLowerCase();
+        valueB = b.perex.toLowerCase();
+        break;
+      case 'author':
+        valueA = 'admin';
+        valueB = 'admin';
+        break;
+      case 'comments':
+        valueA = 0;
+        valueB = 0;
+        break;
+      default:
+        valueA = a.title.toLowerCase();
+        valueB = b.title.toLowerCase();
+    }
+
+    if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+    if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
   });
 
   const totalPages = Math.ceil(sortedArticles.length / ITEMS_PER_PAGE);
@@ -122,46 +156,65 @@ const AdminArticleList: React.FC = () => {
     );
   }
 
+  const renderSortableHeader = (field: SortField, label: string) => {
+    const isActive = sortField === field;
+    
+    return (
+      <Th py={4} cursor="pointer" _hover={{ bg: 'gray.100' }}>
+        <Flex align="center" justify="space-between">
+          <Text>{label}</Text>
+          <HStack spacing={1}>
+            <Icon 
+              as={TriangleUpIcon} 
+              w={3} 
+              h={3}
+              color={isActive && sortDirection === 'asc' ? 'blue.500' : 'gray.400'}
+              onClick={() => handleSortChange(field, 'asc')}
+              cursor="pointer"
+              _hover={{ color: 'blue.400' }}
+            />
+            <Icon 
+              as={TriangleDownIcon} 
+              w={3} 
+              h={3}
+              color={isActive && sortDirection === 'desc' ? 'blue.500' : 'gray.400'}
+              onClick={() => handleSortChange(field, 'desc')}
+              cursor="pointer"
+              _hover={{ color: 'blue.400' }}
+            />
+          </HStack>
+        </Flex>
+      </Th>
+    );
+  };
+
   return (
     <Box>
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1" size="lg" color="gray.800">My Articles</Heading>
-        <Flex gap={4} align="center">
-          <Select 
-            value={sortOrder} 
-            onChange={handleSortChange} 
-            width="200px"
-            bg="white"
-            borderColor="gray.300"
-            size="md"
-          >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-          </Select>
-          <Button 
-            as={RouterLink} 
-            to="/admin/new-article" 
-            colorScheme="blue" 
-            leftIcon={<span>+</span>}
-            display={{ base: 'none', md: 'flex' }}
-          >
-            Create New Article
-          </Button>
-        </Flex>
-      </Flex>
-
-      {/* Mobile create button */}
-      <Box mb={6} display={{ base: 'block', md: 'none' }}>
+      <Flex mb={6} alignItems="center">
+        <Heading as="h1" size="lg" color="gray.800" mr={4}>My Articles</Heading>
         <Button 
           as={RouterLink} 
           to="/admin/new-article" 
           colorScheme="blue" 
           leftIcon={<span>+</span>}
-          width="full"
+          display={{ base: 'none', md: 'flex' }}
         >
           Create New Article
         </Button>
-      </Box>
+        
+        {/* Mobile create button*/}
+        <Box mb={6} display={{ base: 'block', md: 'none' }} w="100%" ml={4}>
+          <Button 
+            as={RouterLink} 
+            to="/admin/new-article" 
+            colorScheme="blue" 
+            leftIcon={<span>+</span>}
+            width="full"
+          >
+            Create New Article
+          </Button>
+        </Box>
+      </Flex>
 
       {!articles || articles.length === 0 ? (
         <Box bg="white" p={8} borderRadius="md" textAlign="center" boxShadow="sm">
@@ -173,10 +226,10 @@ const AdminArticleList: React.FC = () => {
             <Table variant="simple">
               <Thead bg="gray.50">
                 <Tr>
-                  <Th py={4}>Article Title</Th>
-                  <Th py={4}>Perex</Th>
-                  <Th py={4}>Author</Th>
-                  <Th py={4}># of Comments</Th>
+                  {renderSortableHeader('title', 'Article Title')}
+                  {renderSortableHeader('perex', 'Perex')}
+                  {renderSortableHeader('author', 'Author')}
+                  {renderSortableHeader('comments', '# of Comments')}
                   <Th py={4} width="120px">Actions</Th>
                 </Tr>
               </Thead>
