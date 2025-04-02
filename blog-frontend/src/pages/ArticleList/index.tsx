@@ -25,10 +25,9 @@ const ArticleList: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
   useEffect(() => {
-    dispatch(fetchArticles({})); // Pass empty object
+    dispatch(fetchArticles({}));
   }, [dispatch]);
 
-  // Sort and paginate the articles
   const sortedArticles = [...(articles || [])].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();
     const dateB = new Date(b.createdAt).getTime();
@@ -86,9 +85,15 @@ const ArticleList: React.FC = () => {
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1">Recent Articles</Heading>
+        <Heading as="h1" size="lg">Recent Articles</Heading>
         <Box>
-          <Select value={sortOrder} onChange={handleSortChange} width="200px">
+          <Select 
+            value={sortOrder} 
+            onChange={handleSortChange} 
+            width="200px"
+            bg="white"
+            borderColor="gray.300"
+          >
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>
           </Select>
@@ -96,7 +101,9 @@ const ArticleList: React.FC = () => {
       </Flex>
       
       {!articles || articles.length === 0 ? (
-        <Text>No articles found.</Text>
+        <Box bg="white" p={8} borderRadius="md" textAlign="center">
+          <Text>No articles found.</Text>
+        </Box>
       ) : (
         <>
           {paginatedArticles.map((article) => (

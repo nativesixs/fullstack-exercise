@@ -81,18 +81,18 @@ const ArticleDetail: React.FC = () => {
   }
 
   return (
-    <Container maxW="container.md">
+    <Container maxW="container.md" bg="white" p={{ base: 6, md: 10 }} borderRadius="lg" boxShadow="sm">
       <Box mb={8}>
-        <Heading as="h1" size="2xl" mb={4}>
+        <Heading as="h1" size="2xl" mb={3} lineHeight="1.2">
           {currentArticle.title}
         </Heading>
         
-        <Text color="gray.600" mb={6}>
+        <Text color="gray.600" fontSize="md" mb={8}>
           {formatDate(currentArticle.createdAt)}
         </Text>
         
         {currentArticle.imageId && (
-          <Box mb={6} height="350px">
+          <Box mb={8} height={{ base: "250px", md: "400px" }} overflow="hidden" borderRadius="md">
             <ApiImage
               imageId={currentArticle.imageId}
               alt={currentArticle.title}
@@ -106,18 +106,18 @@ const ArticleDetail: React.FC = () => {
           </Box>
         )}
         
-        <Text fontSize="lg" fontWeight="medium" mb={6}>
+        <Text fontSize="xl" fontWeight="medium" mb={8} color="gray.700">
           {currentArticle.perex}
         </Text>
         
-        <Divider mb={6} />
+        <Divider mb={8} />
         
-        <Box className="markdown-content">
+        <Box className="markdown-content" fontSize="lg" lineHeight="1.8" color="gray.800">
           <ReactMarkdown>{currentArticle.content}</ReactMarkdown>
         </Box>
       </Box>
       
-      <Divider my={8} />
+      <Divider my={10} />
       
       <CommentsSection articleId={currentArticle.articleId} comments={comments} />
     </Container>

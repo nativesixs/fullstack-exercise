@@ -22,6 +22,7 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Select,
+  TableContainer,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -49,7 +50,7 @@ const AdminArticleList: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(fetchArticles({})); // Pass empty object
+      dispatch(fetchArticles({}));
     }
   }, [dispatch, isAuthenticated]);
 
@@ -134,16 +135,22 @@ const AdminArticleList: React.FC = () => {
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1">My Articles</Heading>
+        <Heading as="h1" size="lg">My Articles</Heading>
         <Flex gap={4}>
-          <Select value={sortOrder} onChange={handleSortChange} width="200px">
+          <Select 
+            value={sortOrder} 
+            onChange={handleSortChange} 
+            width="200px"
+            bg="white"
+            borderColor="gray.300"
+          >
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>
           </Select>
           <Button 
             as={RouterLink} 
             to="/admin/new-article" 
-            colorScheme="blue"
+            colorScheme="blue" 
             leftIcon={<span>+</span>}
           >
             Create New Article
@@ -152,52 +159,61 @@ const AdminArticleList: React.FC = () => {
       </Flex>
 
       {!articles || articles.length === 0 ? (
-        <Text>No articles found. Create your first article!</Text>
+        <Box bg="white" p={8} borderRadius="md" textAlign="center">
+          <Text>No articles found. Create your first article!</Text>
+        </Box>
       ) : (
-        <>
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th>Article Title</Th>
-                <Th>Perex</Th>
-                <Th>Date</Th>
-                <Th width="120px">Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {paginatedArticles.map((article) => (
-                <Tr key={article.articleId}>
-                  <Td fontWeight="medium">{article.title}</Td>
-                  <Td noOfLines={2}>{article.perex}</Td>
-                  <Td>{formatDate(article.createdAt)}</Td>
-                  <Td>
-                    <Flex gap={2}>
-                      <IconButton
-                        aria-label="Edit article"
-                        icon={<EditIcon />}
-                        size="sm"
-                        onClick={() => handleEdit(article.articleId)}
-                      />
-                      <IconButton
-                        aria-label="Delete article"
-                        icon={<DeleteIcon />}
-                        size="sm"
-                        colorScheme="red"
-                        onClick={() => handleDelete(article.articleId)}
-                      />
-                    </Flex>
-                  </Td>
+        <Box bg="white" borderRadius="md" overflow="hidden" boxShadow="sm">
+          <TableContainer>
+            <Table variant="simple">
+              <Thead bg="gray.50">
+                <Tr>
+                  <Th py={4}>Article Title</Th>
+                  <Th py={4}>Perex</Th>
+                  <Th py={4}>Date</Th>
+                  <Th py={4} width="120px">Actions</Th>
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
+              </Thead>
+              <Tbody>
+                {paginatedArticles.map((article) => (
+                  <Tr key={article.articleId} _hover={{ bg: "gray.50" }}>
+                    <Td fontWeight="medium" py={4}>{article.title}</Td>
+                    <Td noOfLines={2} py={4}>{article.perex}</Td>
+                    <Td py={4}>{formatDate(article.createdAt)}</Td>
+                    <Td py={4}>
+                      <Flex gap={2}>
+                        <IconButton
+                          aria-label="Edit article"
+                          icon={<EditIcon />}
+                          size="sm"
+                          colorScheme="blue"
+                          variant="ghost"
+                          onClick={() => handleEdit(article.articleId)}
+                        />
+                        <IconButton
+                          aria-label="Delete article"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          colorScheme="red"
+                          variant="ghost"
+                          onClick={() => handleDelete(article.articleId)}
+                        />
+                      </Flex>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </TableContainer>
           
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </>
+          <Box py={4} px={6} bg="white">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </Box>
+        </Box>
       )}
 
       <AlertDialog

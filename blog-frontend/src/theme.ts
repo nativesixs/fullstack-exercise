@@ -12,7 +12,7 @@ const theme = extendTheme({
       900: "#0A224A",
     },
     gray: {
-      50: "#F5F5F5",
+      50: "#F9F9F9",
       100: "#EBEBEB",
       200: "#DEDEDE",
       300: "#CCCCCC",
@@ -25,9 +25,66 @@ const theme = extendTheme({
     },
   },
   fonts: {
-    heading: "Inter, sans-serif",
-    body: "Inter, sans-serif",
+    heading: "Inter, system-ui, sans-serif",
+    body: "Inter, system-ui, sans-serif",
   },
+  components: {
+    Button: {
+      baseStyle: {
+        fontWeight: "600",
+        borderRadius: "4px",
+      },
+      variants: {
+        solid: {
+          bg: "brand.500",
+          color: "white",
+          _hover: {
+            bg: "brand.600",
+          },
+        },
+        outline: {
+          color: "brand.500",
+          borderColor: "brand.500",
+          _hover: {
+            bg: "brand.50",
+          },
+        },
+      },
+    },
+    Link: {
+      baseStyle: {
+        fontWeight: "500",
+        _hover: {
+          textDecoration: "none",
+          color: "brand.600",
+        },
+      },
+    },
+    Heading: {
+      baseStyle: {
+        fontWeight: "600",
+        color: "gray.800",
+      }
+    },
+    Input: {
+      defaultProps: {
+        focusBorderColor: "brand.500",
+      }
+    },
+    Textarea: {
+      defaultProps: {
+        focusBorderColor: "brand.500",
+      }
+    },
+  },
+  styles: {
+    global: {
+      body: {
+        bg: "gray.50",
+        color: "gray.800",
+      }
+    }
+  }
 });
 
 export default theme;
