@@ -15,7 +15,7 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   
-  // max 5 pages visible, maybe we want more ?
+  // max 5 pages visible, maybe we want more?
   const getVisiblePages = () => {
     if (totalPages <= 5) return pages;
     

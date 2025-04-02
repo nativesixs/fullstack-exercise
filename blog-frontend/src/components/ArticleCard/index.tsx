@@ -19,7 +19,16 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   };
 
   return (
-    <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb={6}>
+    <Box 
+      borderWidth="1px" 
+      borderRadius="lg" 
+      overflow="hidden" 
+      mb={6} 
+      bg="white" 
+      boxShadow="sm"
+      transition="box-shadow 0.2s"
+      _hover={{ boxShadow: "md" }}
+    >
       <Flex direction={{ base: 'column', md: 'row' }}>
         {article.imageId && (
           <Box width={{ base: '100%', md: '30%' }} height={{ base: '200px', md: '250px' }} position="relative">
@@ -36,7 +45,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
         )}
         
         <Box p={6} width={{ base: '100%', md: article.imageId ? '70%' : '100%' }}>
-          <Heading as="h2" size="lg" mb={2}>
+          <Heading as="h2" size="lg" mb={2} lineHeight="1.2">
             <Link as={RouterLink} to={`/articles/${article.articleId}`} color="blue.600">
               {article.title}
             </Link>
@@ -46,12 +55,18 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
             {formatDate(article.createdAt)}
           </Text>
           
-          <Text mb={4} noOfLines={3}>
+          <Text mb={4} noOfLines={3} color="gray.700">
             {article.perex}
           </Text>
           
           <Flex>
-            <Link as={RouterLink} to={`/articles/${article.articleId}`} color="blue.600">
+            <Link 
+              as={RouterLink} 
+              to={`/articles/${article.articleId}`} 
+              color="blue.600"
+              fontWeight="500"
+              _hover={{ textDecoration: 'none', color: 'blue.700' }}
+            >
               Read whole article
             </Link>
           </Flex>

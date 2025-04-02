@@ -23,12 +23,12 @@ import {
   AlertDialogOverlay,
   Select,
   TableContainer,
+  Badge,
 } from '@chakra-ui/react';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticles, deleteArticle } from '../../store/actions/articleActions';
-import { format } from 'date-fns';
 import LoadingState from '../../components/LoadingState';
 import Pagination from '../../components/Pagination';
 
@@ -53,14 +53,6 @@ const AdminArticleList: React.FC = () => {
       dispatch(fetchArticles({}));
     }
   }, [dispatch, isAuthenticated]);
-
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), 'MMM d, yyyy');
-    } catch (error) {
-      return dateString;
-    }
-  };
 
   const handleEdit = (articleId: string) => {
     navigate(`/admin/articles/${articleId}`);
@@ -106,14 +98,12 @@ const AdminArticleList: React.FC = () => {
     setCurrentPage(1);
   };
 
-  // Sort articles
   const sortedArticles = [...(articles || [])].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();
     const dateB = new Date(b.createdAt).getTime();
     return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
   });
 
-  // Paginate articles
   const totalPages = Math.ceil(sortedArticles.length / ITEMS_PER_PAGE);
   const paginatedArticles = sortedArticles.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -127,7 +117,7 @@ const AdminArticleList: React.FC = () => {
   if (error) {
     return (
       <Box>
-        <Text color="red.500">{error}</Text>
+        <Text color="red.500" fontSize="lg">{error}</Text>
       </Box>
     );
   }
@@ -135,14 +125,15 @@ const AdminArticleList: React.FC = () => {
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1" size="lg">My Articles</Heading>
-        <Flex gap={4}>
+        <Heading as="h1" size="lg" color="gray.800">My Articles</Heading>
+        <Flex gap={4} align="center">
           <Select 
             value={sortOrder} 
             onChange={handleSortChange} 
             width="200px"
             bg="white"
             borderColor="gray.300"
+            size="md"
           >
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>
@@ -152,14 +143,28 @@ const AdminArticleList: React.FC = () => {
             to="/admin/new-article" 
             colorScheme="blue" 
             leftIcon={<span>+</span>}
+            display={{ base: 'none', md: 'flex' }}
           >
             Create New Article
           </Button>
         </Flex>
       </Flex>
 
+      {/* Mobile create button */}
+      <Box mb={6} display={{ base: 'block', md: 'none' }}>
+        <Button 
+          as={RouterLink} 
+          to="/admin/new-article" 
+          colorScheme="blue" 
+          leftIcon={<span>+</span>}
+          width="full"
+        >
+          Create New Article
+        </Button>
+      </Box>
+
       {!articles || articles.length === 0 ? (
-        <Box bg="white" p={8} borderRadius="md" textAlign="center">
+        <Box bg="white" p={8} borderRadius="md" textAlign="center" boxShadow="sm">
           <Text>No articles found. Create your first article!</Text>
         </Box>
       ) : (
@@ -170,7 +175,8 @@ const AdminArticleList: React.FC = () => {
                 <Tr>
                   <Th py={4}>Article Title</Th>
                   <Th py={4}>Perex</Th>
-                  <Th py={4}>Date</Th>
+                  <Th py={4}>Author</Th>
+                  <Th py={4}># of Comments</Th>
                   <Th py={4} width="120px">Actions</Th>
                 </Tr>
               </Thead>
@@ -178,8 +184,13 @@ const AdminArticleList: React.FC = () => {
                 {paginatedArticles.map((article) => (
                   <Tr key={article.articleId} _hover={{ bg: "gray.50" }}>
                     <Td fontWeight="medium" py={4}>{article.title}</Td>
-                    <Td noOfLines={2} py={4}>{article.perex}</Td>
-                    <Td py={4}>{formatDate(article.createdAt)}</Td>
+                    <Td noOfLines={2} py={4} color="gray.600">{article.perex}</Td>
+                    <Td py={4}>Admin</Td>
+                    <Td py={4}>
+                      <Badge colorScheme="blue" borderRadius="full" px={2}>
+                        0
+                      </Badge>
+                    </Td>
                     <Td py={4}>
                       <Flex gap={2}>
                         <IconButton

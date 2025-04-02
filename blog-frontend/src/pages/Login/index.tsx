@@ -13,6 +13,7 @@ import {
   Flex,
   Alert,
   AlertIcon,
+  Container,
 } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
@@ -82,67 +83,76 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Flex minH="70vh" align="center" justify="center">
-      <Box 
-        bg="white" 
-        p={8} 
-        borderRadius="lg" 
-        boxShadow="sm"
-        w="100%" 
-        maxW="400px"
-      >
-        <Heading as="h1" size="lg" mb={6} textAlign="center">
-          Log In
-        </Heading>
-        
-        {error && (
-          <Alert status="error" mb={6} borderRadius="md">
-            <AlertIcon />
-            {error}
-          </Alert>
-        )}
-        
-        <Box as="form" onSubmit={handleSubmit}>
-          <VStack spacing={5}>
-            <FormControl isInvalid={!!errors.username} isRequired>
-              <FormLabel>Username</FormLabel>
-              <Input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="johndoe"
-              />
-              <FormErrorMessage>{errors.username}</FormErrorMessage>
-            </FormControl>
-            
-            <FormControl isInvalid={!!errors.password} isRequired>
-              <FormLabel>Password</FormLabel>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="********"
-              />
-              <FormErrorMessage>{errors.password}</FormErrorMessage>
-            </FormControl>
-            
-            <Button
-              type="submit"
-              colorScheme="blue"
-              w="100%"
-              mt={4}
-              isLoading={loading}
-            >
-              Log In
-            </Button>
-            
-            <Text fontSize="sm" color="gray.500" mt={4} textAlign="center">
-              Don't have an account? Please contact your administrator.
-            </Text>
-          </VStack>
+    <Container maxW="container.sm" py={10}>
+      <Flex minH="50vh" align="center" justify="center">
+        <Box 
+          bg="white" 
+          p={{ base: 6, md: 8 }} 
+          borderRadius="lg" 
+          boxShadow="sm"
+          w="100%" 
+          maxW="400px"
+        >
+          <Heading as="h1" size="lg" mb={6} textAlign="center" color="gray.800">
+            Log In
+          </Heading>
+          
+          {error && (
+            <Alert status="error" mb={6} borderRadius="md">
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
+          
+          <Box as="form" onSubmit={handleSubmit}>
+            <VStack spacing={5}>
+              <FormControl isInvalid={!!errors.username} isRequired>
+                <FormLabel fontWeight="medium">Username</FormLabel>
+                <Input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="johndoe"
+                  bg="white"
+                  borderColor="gray.300"
+                  size="md"
+                />
+                <FormErrorMessage>{errors.username}</FormErrorMessage>
+              </FormControl>
+              
+              <FormControl isInvalid={!!errors.password} isRequired>
+                <FormLabel fontWeight="medium">Password</FormLabel>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="********"
+                  bg="white"
+                  borderColor="gray.300"
+                  size="md"
+                />
+                <FormErrorMessage>{errors.password}</FormErrorMessage>
+              </FormControl>
+              
+              <Button
+                type="submit"
+                colorScheme="blue"
+                w="100%"
+                mt={4}
+                isLoading={loading}
+                size="md"
+              >
+                Log In
+              </Button>
+              
+              <Text fontSize="sm" color="gray.500" mt={4} textAlign="center">
+                Don't have an account? Please contact your administrator.
+              </Text>
+            </VStack>
+          </Box>
         </Box>
-      </Box>
-    </Flex>
+      </Flex>
+    </Container>
   );
 };
 

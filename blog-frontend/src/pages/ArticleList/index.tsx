@@ -85,7 +85,7 @@ const ArticleList: React.FC = () => {
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1" size="lg">Recent Articles</Heading>
+        <Heading as="h1" size="lg" color="gray.800">Recent Articles</Heading>
         <Box>
           <Select 
             value={sortOrder} 
@@ -93,6 +93,7 @@ const ArticleList: React.FC = () => {
             width="200px"
             bg="white"
             borderColor="gray.300"
+            size="md"
           >
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>
@@ -101,7 +102,7 @@ const ArticleList: React.FC = () => {
       </Flex>
       
       {!articles || articles.length === 0 ? (
-        <Box bg="white" p={8} borderRadius="md" textAlign="center">
+        <Box bg="white" p={8} borderRadius="md" textAlign="center" boxShadow="sm">
           <Text>No articles found.</Text>
         </Box>
       ) : (

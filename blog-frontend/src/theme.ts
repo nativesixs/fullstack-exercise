@@ -76,6 +76,25 @@ const theme = extendTheme({
         focusBorderColor: "brand.500",
       }
     },
+    Table: {
+      variants: {
+        simple: {
+          th: {
+            borderBottom: "1px",
+            borderColor: "gray.200",
+            padding: "1rem",
+            fontWeight: "600",
+            fontSize: "sm",
+            color: "gray.700",
+          },
+          td: {
+            borderBottom: "1px",
+            borderColor: "gray.100",
+            padding: "1rem",
+          },
+        },
+      },
+    },
   },
   styles: {
     global: {

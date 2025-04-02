@@ -9,7 +9,8 @@ import {
   IconButton, 
   useColorMode, 
   Divider,
-  HStack
+  HStack,
+  useBreakpointValue
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -27,6 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const handleLogout = () => {
     dispatch(logout());
@@ -115,6 +117,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   colorScheme="blue"
                   size="sm"
                   leftIcon={<Box as="span" fontSize="lg">+</Box>}
+                  display={{ base: 'none', md: 'flex' }}
                 >
                   Create new article
                 </Button>
@@ -133,7 +136,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       <Box as="footer" bg="white" py={6} borderTop="1px solid" borderColor="gray.200">
         <Container maxW="container.xl">
-          <Flex justify="space-between" alignItems="center">
+          <Flex 
+            direction={{ base: 'column', md: 'row' }} 
+            justify="space-between" 
+            alignItems={{ base: 'center', md: 'center' }}
+            gap={{ base: 4, md: 0 }}
+          >
             <Box color="gray.600" fontSize="sm">© {new Date().getFullYear()} Applifting</Box>
             <HStack spacing={6} color="gray.600">
               <Link href="#" fontSize="sm">Privacy Policy</Link>
