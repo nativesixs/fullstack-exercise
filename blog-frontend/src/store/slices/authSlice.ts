@@ -1,49 +1,66 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { login, logout } from '../actions/authActions';
-import { getAccessToken } from '../../utils/tokenStorage';
+import { AuthState } from '../../types/state';
+import { createAsyncHandlers } from '../../utils/reduxHelpers';
+import { isTokenExpired, getAccessToken } from '../../utils/tokenStorage';
+import { AppThunk } from '../store';
 
-interface AuthState {
-  isAuthenticated: boolean;
-  loading: boolean;
-  error: string | null;
-}
-
+// Define initial state with proper typing
 const initialState: AuthState = {
-  isAuthenticated: !!getAccessToken(),
+  isAuthenticated: false,
   loading: false,
   error: null
 };
 
+// Check if user is authenticated
+export const checkAuthentication = (): AppThunk => (dispatch) => {
+  const token = getAccessToken();
+  
+  if (token && !isTokenExpired()) {
+    dispatch(setAuthState(true));
+  } else {
+    dispatch(setAuthState(false));
+  }
+};
+
+// Create the slice with properly typed reducers
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    clearError: (state) => {
+    // Set authentication state
+    setAuthState: (state, action: PayloadAction<boolean>) => {
+      state.isAuthenticated = action.payload;
+    },
+    // Clear authentication error
+    clearAuthError: (state) => {
       state.error = null;
     },
-    checkAuthentication: (state) => {
-      state.isAuthenticated = !!getAccessToken();
-    }
   },
   extraReducers: (builder) => {
+    const loginHandlers = createAsyncHandlers<string, AuthState>();
+    const logoutHandlers = createAsyncHandlers<void, AuthState>();
+    
     builder
-      .addCase(login.pending, (state) => {
-        state.loading = true;
+      // Login
+      .addCase(login.pending, loginHandlers.pending)
+      .addCase(login.fulfilled, (state) => {
+        state.loading = false;
+        state.isAuthenticated = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state) => {
-        state.isAuthenticated = true;
-        state.loading = false;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
+      .addCase(login.rejected, loginHandlers.rejected)
+      
+      // Logout
+      .addCase(logout.pending, logoutHandlers.pending)
       .addCase(logout.fulfilled, (state) => {
         state.isAuthenticated = false;
-      });
-  }
+        state.loading = false;
+      })
+      .addCase(logout.rejected, logoutHandlers.rejected);
+  },
 });
 
-export const { clearError, checkAuthentication } = authSlice.actions;
+export const { setAuthState, clearAuthError } = authSlice.actions;
+
 export default authSlice.reducer;

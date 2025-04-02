@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Article, ArticleDetail } from '../../types/article';
 import { 
   fetchArticles, 
   fetchArticleById, 
@@ -6,15 +7,10 @@ import {
   updateArticle, 
   deleteArticle 
 } from '../actions/articleActions';
-import { Article, ArticleDetail } from '../../types/article';
+import { ArticlesState } from '../../types/state';
+import { createAsyncHandlers } from '../../utils/reduxHelpers';
 
-interface ArticlesState {
-  articles: Article[];
-  currentArticle: ArticleDetail | null;
-  loading: boolean;
-  error: string | null;
-}
-
+// Define initial state with proper typing
 const initialState: ArticlesState = {
   articles: [],
   currentArticle: null,
@@ -22,67 +18,65 @@ const initialState: ArticlesState = {
   error: null
 };
 
+// Create the slice with properly typed reducers
 const articlesSlice = createSlice({
   name: 'articles',
   initialState,
   reducers: {
+    // Clear error action
     clearArticleError: (state) => {
       state.error = null;
     },
+    // Clear current article action
     clearCurrentArticle: (state) => {
       state.currentArticle = null;
-    }
+    },
   },
   extraReducers: (builder) => {
+    const fetchArticlesHandlers = createAsyncHandlers<Article[], ArticlesState>('articles');
+    const fetchArticleByIdHandlers = createAsyncHandlers<ArticleDetail, ArticlesState>('currentArticle');
+    
+    // Fetch articles handlers
     builder
-      .addCase(fetchArticles.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchArticles.fulfilled, (state, action) => {
+      .addCase(fetchArticles.pending, fetchArticlesHandlers.pending)
+      .addCase(fetchArticles.fulfilled, (state, action: PayloadAction<Article[]>) => {
         state.articles = action.payload;
         state.loading = false;
       })
-      .addCase(fetchArticles.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
+      .addCase(fetchArticles.rejected, fetchArticlesHandlers.rejected);
 
-      .addCase(fetchArticleById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchArticleById.fulfilled, (state, action) => {
+    // Fetch article by ID handlers
+    builder
+      .addCase(fetchArticleById.pending, fetchArticleByIdHandlers.pending)
+      .addCase(fetchArticleById.fulfilled, (state, action: PayloadAction<ArticleDetail>) => {
         state.currentArticle = action.payload;
         state.loading = false;
       })
-      .addCase(fetchArticleById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
+      .addCase(fetchArticleById.rejected, fetchArticleByIdHandlers.rejected);
 
+    // Create article handlers
+    builder
       .addCase(createArticle.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(createArticle.fulfilled, (state, action) => {
+      .addCase(createArticle.fulfilled, (state, action: PayloadAction<ArticleDetail>) => {
         state.articles = [action.payload, ...state.articles];
         state.currentArticle = action.payload;
         state.loading = false;
       })
       .addCase(createArticle.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-      })
-      
+        state.error = action.payload || 'Failed to create article';
+      });
 
+    // Update article handlers
+    builder
       .addCase(updateArticle.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateArticle.fulfilled, (state, action) => {
+      .addCase(updateArticle.fulfilled, (state, action: PayloadAction<ArticleDetail>) => {
         state.articles = state.articles.map(article => 
           article.articleId === action.payload.articleId ? action.payload : article
         );
@@ -91,23 +85,27 @@ const articlesSlice = createSlice({
       })
       .addCase(updateArticle.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-      })
-      
+        state.error = action.payload || 'Failed to update article';
+      });
 
+    // Delete article handlers
+    builder
       .addCase(deleteArticle.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteArticle.fulfilled, (state, action) => {
+      .addCase(deleteArticle.fulfilled, (state, action: PayloadAction<string>) => {
         state.articles = state.articles.filter(article => 
           article.articleId !== action.payload
         );
+        if (state.currentArticle?.articleId === action.payload) {
+          state.currentArticle = null;
+        }
         state.loading = false;
       })
       .addCase(deleteArticle.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload || 'Failed to delete article';
       });
   }
 });

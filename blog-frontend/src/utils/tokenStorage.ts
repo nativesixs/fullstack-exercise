@@ -1,59 +1,52 @@
-const API_KEY_STORAGE_KEY = 'apiKey';
-const ACCESS_TOKEN_STORAGE_KEY = 'blog_access_token';
-const TOKEN_EXPIRY_KEY = 'blog_token_expiry';
+import config from '../config';
 
+// Get API key from storage
 export const getApiKey = (): string | null => {
-  let apiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
-  if (!apiKey) {
-    apiKey = localStorage.getItem('blog_api_key');
-  }
-  return apiKey;
+  return localStorage.getItem(config.API_KEY_STORAGE_KEY);
 };
 
+// Set API key in storage
 export const setApiKey = (apiKey: string): void => {
-  localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+  localStorage.setItem(config.API_KEY_STORAGE_KEY, apiKey);
 };
 
+// Remove API key from storage
 export const removeApiKey = (): void => {
-  localStorage.removeItem(API_KEY_STORAGE_KEY);
-  localStorage.removeItem('blog_api_key');
+  localStorage.removeItem(config.API_KEY_STORAGE_KEY);
 };
 
+// Get access token from storage
 export const getAccessToken = (): string | null => {
-  const token = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-  const expiryTimestamp = localStorage.getItem(TOKEN_EXPIRY_KEY);
-  
-  if (!token || !expiryTimestamp) {
-    return null;
-  }
-  
-  const now = new Date().getTime();
-  const expiry = parseInt(expiryTimestamp, 10);
-  
-  if (now >= expiry) {
-    removeAccessToken();
-    return null;
-  }
-  
-  return token;
+  return localStorage.getItem(config.AUTH_TOKEN_KEY);
 };
 
-export const setAccessToken = (token: string, expiresInSeconds: number): void => {
-  const expiryTimestamp = new Date().getTime() + expiresInSeconds * 1000;
-  localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
-  localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTimestamp.toString());
+// Set access token in storage - now accepts both token and expiry
+export const setAccessToken = (token: string, expirySeconds?: number): void => {
+  localStorage.setItem(config.AUTH_TOKEN_KEY, token);
+  
+  if (expirySeconds) {
+    const expiryTime = Date.now() + expirySeconds * 1000;
+    localStorage.setItem(config.AUTH_TOKEN_EXPIRY_KEY, expiryTime.toString());
+  }
 };
 
+// Remove access token from storage
 export const removeAccessToken = (): void => {
-  localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  localStorage.removeItem(TOKEN_EXPIRY_KEY);
+  localStorage.removeItem(config.AUTH_TOKEN_KEY);
+  localStorage.removeItem(config.AUTH_TOKEN_EXPIRY_KEY);
 };
 
-export const clearTokens = (): void => {
-  removeApiKey();
-  removeAccessToken();
+// Get token expiry timestamp from storage
+export const getTokenExpiry = (): number | null => {
+  const expiry = localStorage.getItem(config.AUTH_TOKEN_EXPIRY_KEY);
+  return expiry ? parseInt(expiry, 10) : null;
 };
 
-export const isAuthenticated = (): boolean => {
-  return getAccessToken() !== null;
+// Check if the token is expired
+export const isTokenExpired = (): boolean => {
+  const expiry = getTokenExpiry();
+  if (!expiry) return true;
+  
+  // Check if current time is past the expiry time
+  return Date.now() > expiry;
 };

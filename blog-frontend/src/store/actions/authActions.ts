@@ -1,24 +1,33 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import * as authApi from '../../api/authApi';
-import { setAccessToken } from '../../utils/tokenStorage';
+import apiClient from '../../api/apiClient';
+import { setAccessToken, removeAccessToken } from '../../utils/tokenStorage';
+import { createAsyncThunk } from '../../utils/reduxHelpers';
 
-export const login = createAsyncThunk(
+// Types for login
+interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+interface LoginResponse {
+  accessToken: string;
+  expiresIn: number;
+}
+
+// Login action
+export const login = createAsyncThunk<string, LoginCredentials>(
   'auth/login',
-  async ({ username, password }: { username: string; password: string }, { rejectWithValue }) => {
-    try {
-      const response = await authApi.login(username, password);
-      setAccessToken(response.access_token, response.expires_in);
-      return response.access_token;
-    } catch (error) {
-      return rejectWithValue('Invalid credentials');
-    }
+  async (credentials) => {
+    const response = await apiClient.post<LoginResponse>('/login', credentials);
+    const { accessToken, expiresIn } = response.data;
+    setAccessToken(accessToken, expiresIn);
+    return accessToken;
   }
 );
 
-export const logout = createAsyncThunk(
+// Logout action
+export const logout = createAsyncThunk<void, void>(
   'auth/logout',
   async () => {
-    authApi.logout();
-    return null;
+    removeAccessToken();
   }
 );

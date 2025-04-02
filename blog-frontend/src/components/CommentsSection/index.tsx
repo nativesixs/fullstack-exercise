@@ -18,121 +18,130 @@ import {
   IconButton
 } from '@chakra-ui/react';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
-import { format } from 'date-fns';
-import { Comment } from '../../types/comment';
+import { formatDate } from '../../utils/dateUtils';
+import { Comment, UserVotes, VoteType, VoteValue } from '../../types/comment';
 import { postComment, upvoteComment, downvoteComment } from '../../api/commentApi';
+import { validateCommentForm } from '../../utils/formValidation';
 import websocketService from '../../services/websocketService';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { Link as RouterLink } from 'react-router-dom';
 
+// Component props interface
 interface CommentsSectionProps {
   articleId: string;
   comments: Comment[];
 }
 
+// User votes storage key
 const USER_VOTES_KEY = 'user_comment_votes';
-type UserVotes = Record<string, 1 | 0 | -1>;
 
+/**
+ * Get stored user votes from localStorage
+ */
 const getStoredUserVotes = (): UserVotes => {
   try {
     const storedVotes = localStorage.getItem(USER_VOTES_KEY);
     return storedVotes ? JSON.parse(storedVotes) : {};
-  } catch (e) {
-    console.error('Error loading user votes:', e);
+  } catch (error) {
+    console.error('Error retrieving stored votes:', error);
     return {};
   }
 };
 
-const saveUserVotes = (votes: UserVotes) => {
+/**
+ * Save user votes to localStorage
+ */
+const saveUserVotes = (votes: UserVotes): void => {
   try {
     localStorage.setItem(USER_VOTES_KEY, JSON.stringify(votes));
-  } catch (e) {
-    console.error('Error saving user votes:', e);
+  } catch (error) {
+    console.error('Error saving votes:', error);
   }
 };
 
+/**
+ * Comments section component
+ */
 const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments = [] }) => {
   const [content, setContent] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [localComments, setLocalComments] = useState<Comment[]>(comments);
-  const [error, setError] = useState<string | null>(null);
   const [userVotes, setUserVotes] = useState<UserVotes>(getStoredUserVotes());
-  
-  const processedCommentIds = useRef(new Set<string>());
-  
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const toast = useToast();
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const username = 'Admin';
-
+  
+  // Track processed comment IDs to avoid duplicates from WebSocket
+  const processedCommentIds = useRef<Set<string>>(new Set());
+  
+  // Default username for comments
+  const username = 'Anonymous';
+  
+  // Update local comments when props change
   useEffect(() => {
-    if (comments.length > 0) {
-      const idSet = new Set<string>();
-      comments.forEach(comment => idSet.add(comment.commentId));
-      processedCommentIds.current = idSet;
-      setLocalComments(comments);
+    // Add any new comments from props that aren't in localComments
+    const newComments = comments.filter(comment => 
+      !localComments.some(localComment => localComment.commentId === comment.commentId)
+    );
+    
+    if (newComments.length > 0) {
+      setLocalComments(prevComments => [...prevComments, ...newComments]);
     }
-  }, [comments]);
-
+  }, [comments, localComments]);
+  
+  // Set up WebSocket for real-time comments
   useEffect(() => {
-    const handleCommentEvent = (event: { changeType: string; comment: Comment }) => {
-      if (event.comment.articleId === articleId) {
-        if (event.changeType === 'commentCreated') {
-          if (processedCommentIds.current.has(event.comment.commentId)) {
-            console.log('Skipping already processed comment', event.comment.commentId);
-            return;
-          }
-          
-          processedCommentIds.current.add(event.comment.commentId);
-          
-          setLocalComments(prevComments => [event.comment, ...prevComments]);
-          
-          if (event.comment.author !== username) {
-            toast({
-              title: 'New comment',
-              description: 'Someone just added a new comment',
-              status: 'info',
-              duration: 3000,
-              isClosable: true,
-            });
-          }
-        } else if (event.changeType === 'commentUpVoted' || event.changeType === 'commentDownVoted') {
-          setLocalComments(prevComments => 
-            prevComments.map(comment => 
-              comment.commentId === event.comment.commentId ? event.comment : comment
-            )
-          );
-        }
+    if (!articleId) return;
+    
+    // Mark existing comments as processed
+    comments.forEach(comment => {
+      processedCommentIds.current.add(comment.commentId);
+    });
+    
+    const handleNewComment = (comment: Comment) => {
+      // Check if this comment is for our article and hasn't been processed yet
+      if (comment.articleId === articleId && !processedCommentIds.current.has(comment.commentId)) {
+        processedCommentIds.current.add(comment.commentId);
+        setLocalComments(prevComments => [comment, ...prevComments]);
+        
+        toast({
+          title: 'New Comment',
+          description: `${comment.author} posted a new comment`,
+          status: 'info',
+          duration: 3000,
+          isClosable: true,
+          position: 'bottom-right',
+        });
       }
     };
-
-    websocketService.subscribe(handleCommentEvent);
-
+    
+    // Connect to WebSocket
+    websocketService.connect();
+    websocketService.subscribeToComments(handleNewComment);
+    
     return () => {
-      websocketService.unsubscribe(handleCommentEvent);
+      websocketService.unsubscribeFromComments();
     };
-  }, [articleId, toast, username]);
-
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), 'MMM d, yyyy • h:mm a');
-    } catch (error) {
-      return dateString;
-    }
-  };
-
+  }, [articleId, toast, comments]);
+  
+  // Submit a new comment
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     
-    if (!content.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Comment text is required',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+    const { isValid, errors } = validateCommentForm({ content, author: username });
+    
+    if (!isValid) {
+      if (errors.content) {
+        toast({
+          title: 'Error',
+          description: errors.content,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
       return;
     }
     
@@ -182,7 +191,8 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
     }
   };
 
-  const handleVote = async (commentId: string, voteType: 'up' | 'down') => {
+  // Handle comment voting (upvote/downvote)
+  const handleVote = async (commentId: string, voteType: VoteType) => {
     if (!isAuthenticated) {
       toast({
         title: 'Authentication required',
@@ -196,39 +206,48 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
 
     try {
       const currentVote = userVotes[commentId] || 0;
-      let newVoteState: 1 | 0 | -1;
+      let newVoteState: VoteValue;
       let apiActions: Array<() => Promise<Comment>> = [];
-
+      
+      // Determine the new vote state based on current state and vote type
       if (voteType === 'up') {
         if (currentVote === 1) {
+          // Cancel upvote
           newVoteState = 0;
           apiActions.push(() => downvoteComment(commentId));
         } else if (currentVote === -1) {
+          // Change from downvote to upvote (+2)
           newVoteState = 1;
           apiActions.push(() => upvoteComment(commentId));
           apiActions.push(() => upvoteComment(commentId));
         } else {
+          // New upvote
           newVoteState = 1;
           apiActions.push(() => upvoteComment(commentId));
         }
       } else { 
         if (currentVote === -1) {
+          // Cancel downvote
           newVoteState = 0;
           apiActions.push(() => upvoteComment(commentId));
         } else if (currentVote === 1) {
+          // Change from upvote to downvote (-2)
           newVoteState = -1;
           apiActions.push(() => downvoteComment(commentId));
           apiActions.push(() => downvoteComment(commentId));
         } else {
+          // New downvote
           newVoteState = -1;
           apiActions.push(() => downvoteComment(commentId));
         }
       }
-
+      
+      // Execute all API actions for this vote
       for (const action of apiActions) {
         await action();
       }
 
+      // Update local vote state
       const updatedVotes = { ...userVotes, [commentId]: newVoteState };
       setUserVotes(updatedVotes);
       saveUserVotes(updatedVotes);
@@ -252,8 +271,13 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
     }
   };
 
+  // Sort comments by date (newest first)
+  const sortedComments = [...localComments].sort(
+    (a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
+  );
+
   return (
-    <Box mb={10}>
+    <Box mb={10} data-testid="comments-section">
       <Heading as="h2" size="lg" mb={6}>
         Comments ({localComments.length})
       </Heading>
@@ -288,8 +312,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Share your thoughts..."
-              rows={4}
-              bg="white"
+              minH="120px"
             />
           </FormControl>
           
@@ -297,67 +320,69 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
             type="submit"
             colorScheme="blue"
             isLoading={submitting}
-            loadingText="Posting"
+            loadingText="Posting..."
           >
             Post Comment
           </Button>
         </Box>
       )}
       
-      {localComments.length > 0 ? (
+      {sortedComments.length === 0 ? (
+        <Box textAlign="center" py={8} bg="gray.50" borderRadius="md">
+          <Text color="gray.500">No comments yet. Be the first to comment!</Text>
+        </Box>
+      ) : (
         <VStack spacing={6} align="stretch">
-          {localComments.map((comment) => (
+          {sortedComments.map((comment) => (
             <Box 
               key={comment.commentId} 
-              p={6}
-              bg="white"
-              borderRadius="md"
+              p={6} 
+              bg="white" 
+              borderRadius="md" 
               boxShadow="sm"
+              borderLeft="4px solid"
+              borderColor="blue.400"
             >
-              <Box mb={4}>
-                <HStack mb={2}>
-                  <Avatar size="sm" name={comment.author} />
+              <HStack mb={2} justify="space-between">
+                <HStack>
+                  <Avatar size="sm" name={comment.author} bg="blue.500" />
                   <Text fontWeight="bold">{comment.author}</Text>
-                  <Text color="gray.500" fontSize="sm">
-                    {formatDate(comment.postedAt)}
-                  </Text>
                 </HStack>
-                
-                <Text mb={4}>{comment.content}</Text>
-                
-                <HStack spacing={2} align="center">
-                  <Text fontWeight="bold" fontSize="md" color="gray.700">
-                    {comment.score}
-                  </Text>
-                  <IconButton
-                    icon={<ChevronUpIcon boxSize={5} />}
-                    aria-label="Upvote"
-                    size="sm"
-                    variant="ghost"
-                    colorScheme={userVotes[comment.commentId] === 1 ? 'blue' : 'gray'}
-                    onClick={() => handleVote(comment.commentId, 'up')}
-                    isDisabled={!isAuthenticated}
-                    borderRadius="full"
-                  />
-                  <IconButton
-                    icon={<ChevronDownIcon boxSize={5} />}
-                    aria-label="Downvote"
-                    size="sm"
-                    variant="ghost"
-                    colorScheme={userVotes[comment.commentId] === -1 ? 'red' : 'gray'}
-                    onClick={() => handleVote(comment.commentId, 'down')}
-                    isDisabled={!isAuthenticated}
-                    borderRadius="full"
-                  />
-                </HStack>
-              </Box>
+                <Text color="gray.500" fontSize="sm">
+                  {formatDate(comment.postedAt, 'PPp')}
+                </Text>
+              </HStack>
+              
+              <Text mb={4}>{comment.content}</Text>
+              
+              <HStack spacing={2} align="center">
+                <Text fontWeight="bold" fontSize="md" color="gray.700">
+                  {comment.score}
+                </Text>
+                <IconButton
+                  icon={<ChevronUpIcon boxSize={5} />}
+                  aria-label="Upvote"
+                  size="sm"
+                  variant="ghost"
+                  colorScheme={userVotes[comment.commentId] === 1 ? 'blue' : 'gray'}
+                  onClick={() => handleVote(comment.commentId, 'up')}
+                  isDisabled={!isAuthenticated}
+                  borderRadius="full"
+                />
+                <IconButton
+                  icon={<ChevronDownIcon boxSize={5} />}
+                  aria-label="Downvote"
+                  size="sm"
+                  variant="ghost"
+                  colorScheme={userVotes[comment.commentId] === -1 ? 'red' : 'gray'}
+                  onClick={() => handleVote(comment.commentId, 'down')}
+                  isDisabled={!isAuthenticated}
+                  borderRadius="full"
+                />
+              </HStack>
             </Box>
           ))}
         </VStack>
-      ) : (
-        <Text color="gray.500" textAlign="center" py={8}>
-          No comments yet. Be the first to share your thoughts!
-        </Text>
       )}
     </Box>
   );
