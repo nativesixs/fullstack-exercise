@@ -26,7 +26,5 @@ export const deleteImage = async (imageId: string): Promise<void> => {
 export const getImageUrl = (imageId: string): string => {
   const apiKey = getApiKey();
   const baseUrl = `https://fullstack.exercise.applifting.cz/images/${imageId}`;
-  
-  // Add API key as a URL parameter for direct image links
   return apiKey ? `${baseUrl}?apiKey=${encodeURIComponent(apiKey)}` : baseUrl;
 };

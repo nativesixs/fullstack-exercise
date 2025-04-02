@@ -277,7 +277,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
       )}
       
       {isAuthenticated && (
-        <Box as="form" onSubmit={handleSubmit} mb={10} p={6} bg="gray.50" borderRadius="md">
+        <Box as="form" role="form" onSubmit={handleSubmit} mb={10} p={6} bg="gray.50" borderRadius="md">
           <Heading as="h3" size="md" mb={4}>
             Add Comment
           </Heading>

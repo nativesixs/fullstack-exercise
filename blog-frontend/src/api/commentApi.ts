@@ -84,8 +84,6 @@ export const postComment = config.USE_MOCKS
               return response3.data;
             } catch (error3: any) {
               console.log(`Format 3 failed with status: ${error3.response?.status}`);
-              
-              // Rethrow the original error
               throw error1;
             }
           }

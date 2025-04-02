@@ -3,7 +3,6 @@ import { getApiKey, getAccessToken } from '../utils/tokenStorage';
 
 const API_URL = 'https://fullstack.exercise.applifting.cz';
 
-// Create a custom event system for tracking loading states
 interface LoadingStateEvent extends CustomEvent {
   detail: {
     url: string;
@@ -27,13 +26,11 @@ const apiClient = axios.create({
   },
 });
 
-// Create a second instance specifically for image requests
 export const imageClient = axios.create({
   baseURL: API_URL,
   responseType: 'blob',
 });
 
-// Add interceptor for image client
 imageClient.interceptors.request.use(
   (config) => {
     const apiKey = getApiKey();
@@ -64,7 +61,6 @@ apiClient.interceptors.request.use(
       config.headers['Authorization'] = accessToken;
     }
     
-    // Dispatch loading started event
     dispatchLoadingEvent(config.url || '', true, config.method || 'get');
     
     return config;
@@ -77,12 +73,10 @@ apiClient.interceptors.request.use(
 // error handling
 apiClient.interceptors.response.use(
   (response) => {
-    // Dispatch loading ended event
     dispatchLoadingEvent(response.config.url || '', false, response.config.method || 'get');
     return response;
   },
   (error) => {
-    // Dispatch loading ended event for errors too
     if (error.config) {
       dispatchLoadingEvent(error.config.url || '', false, error.config.method || 'get');
     }
