@@ -1,6 +1,6 @@
 import { Article } from '../types/article';
 
-export type SortField = 'title' | 'createdAt' | 'comments';
+export type SortField = 'title' | 'createdAt' | 'lastUpdatedAt' | 'perex' | 'comments';
 export type SortDirection = 'asc' | 'desc';
 
 export interface SortConfig {
@@ -8,46 +8,47 @@ export interface SortConfig {
   direction: SortDirection;
 }
 
-export const sortArticles = (articles: Article[], sort: SortConfig): Article[] => {
-  if (!articles || articles.length === 0) return [];
-  
-  const sortedArticles = [...articles];
-  
-  sortedArticles.sort((a, b) => {
-    let comparison = 0;
-    
-    switch (sort.field) {
-      case 'title':
-        comparison = a.title.localeCompare(b.title);
-        break;
-      case 'createdAt':
-        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-        break;
-      case 'comments':
-        const aCount = 'comments' in a ? (a as any).comments?.length || 0 : 0;
-        const bCount = 'comments' in b ? (b as any).comments?.length || 0 : 0;
-        comparison = aCount - bCount;
-        break;
-      default:
-        comparison = 0;
-    }
-    
-    return sort.direction === 'asc' ? comparison : -comparison;
-  });
-  
-  return sortedArticles;
-};
-
-export const toggleSort = (currentSort: SortConfig, newField: SortField): SortConfig => {
-  if (currentSort.field === newField) {
+export const toggleSort = (currentSort: SortConfig, field: SortField): SortConfig => {
+  if (currentSort.field === field) {
     return {
-      field: newField,
-      direction: currentSort.direction === 'asc' ? 'desc' : 'asc'
+      field,
+      direction: currentSort.direction === 'asc' ? 'desc' : 'asc',
     };
   } else {
     return {
-      field: newField,
-      direction: 'desc'
+      field,
+      direction: 'desc',
     };
   }
+};
+
+export const sortArticles = (articles: Article[], sort: SortConfig): Article[] => {
+  return [...articles].sort((a, b) => {
+    switch (sort.field) {
+      case 'title': {
+        const result = a.title.localeCompare(b.title);
+        return sort.direction === 'asc' ? result : -result;
+      }
+      case 'createdAt': {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return sort.direction === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+      case 'lastUpdatedAt':
+        if (!a.lastUpdatedAt || !b.lastUpdatedAt) {
+          return sort.direction === 'asc' ? -1 : 1;
+        }
+        return sort.direction === 'asc'
+          ? new Date(a.lastUpdatedAt).getTime() - new Date(b.lastUpdatedAt).getTime()
+          : new Date(b.lastUpdatedAt).getTime() - new Date(a.lastUpdatedAt).getTime();
+      case 'perex':
+        return sort.direction === 'asc'
+          ? a.perex.localeCompare(b.perex)
+          : b.perex.localeCompare(a.perex);
+      case 'comments':
+        return 0;
+      default:
+        return 0;
+    }
+  });
 };

@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Button,
-  Heading,
-  Flex,
-  Text,
-  useToast,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Button, Heading, Flex, Text, useToast, useDisclosure } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticles, deleteArticle } from '../../store/actions/articleActions';
@@ -28,7 +20,7 @@ const AdminArticleList: React.FC = () => {
   const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState<SortConfig>({ field: 'createdAt', direction: 'desc' });
-  
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -80,7 +72,7 @@ const AdminArticleList: React.FC = () => {
   };
 
   const handleSort = (field: SortField) => {
-    setSort(prevSort => toggleSort(prevSort, field));
+    setSort((prevSort) => toggleSort(prevSort, field));
   };
 
   const sortedArticles = sortArticles(articles, sort);
@@ -90,9 +82,7 @@ const AdminArticleList: React.FC = () => {
   const paginatedArticles = sortedArticles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   if (loading) {
-    return (
-      <LoadingState height="50vh" text="Loading articles..." />
-    );
+    return <LoadingState height="50vh" text="Loading articles..." />;
   }
 
   if (error) {
@@ -112,26 +102,31 @@ const AdminArticleList: React.FC = () => {
           as={RouterLink} 
           to="/admin/new-article" 
           colorScheme="blue"
+          leftIcon={<span>+</span>}
         >
           Create New Article
         </Button>
       </Flex>
 
       {articles.length === 0 ? (
-        <Box bg="white" borderRadius="md" p={8} textAlign="center">
-          <Text fontSize="lg" mb={6}>You haven't created any articles yet</Text>
-          <Button 
-            as={RouterLink} 
-            to="/admin/new-article" 
-            colorScheme="blue"
-          >
+        <Box 
+          p={8} 
+          textAlign="center" 
+          bg="white" 
+          borderRadius="md" 
+          boxShadow="sm"
+        >
+          <Text fontSize="lg" mb={4}>
+            You don&apos;t have any articles yet.
+          </Text>
+          <Button as={RouterLink} to="/admin/new-article" colorScheme="blue">
             Create Your First Article
           </Button>
         </Box>
       ) : (
         <Box borderRadius="md" overflow="hidden" bg="white" boxShadow="sm">
-          <ArticleTable 
-            articles={paginatedArticles} 
+          <ArticleTable
+            articles={paginatedArticles}
             sort={sort}
             onSort={handleSort}
             onEdit={handleEdit}

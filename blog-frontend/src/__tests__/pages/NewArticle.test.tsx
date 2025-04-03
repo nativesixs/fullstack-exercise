@@ -25,7 +25,7 @@ jest.mock('../../components/ImageUploader', () => {
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn()
+  useNavigate: () => jest.fn(),
 }));
 
 describe('NewArticle Page', () => {
@@ -35,8 +35,8 @@ describe('NewArticle Page', () => {
     store = createMockStore({
       articles: {
         loading: false,
-        error: null
-      }
+        error: null,
+      },
     });
   });
 
@@ -52,7 +52,7 @@ describe('NewArticle Page', () => {
 
   it('renders the new article form', () => {
     renderComponent();
-    
+
     expect(screen.getByText('Create New Article')).toBeInTheDocument();
 
     expect(screen.getByRole('textbox', { name: /Article Title/i })).toBeInTheDocument();

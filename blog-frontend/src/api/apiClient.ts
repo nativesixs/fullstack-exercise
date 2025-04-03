@@ -14,20 +14,18 @@ export const dispatchLoadingEvent = (url: string, loading: boolean, method: stri
     detail: { url, loading, method },
     bubbles: true,
   }) as ApiLoadingEvent;
-  
+
   document.dispatchEvent(event);
 };
 
 const apiClient = createApiClient();
 
-apiClient.interceptors.request.use(
-  (config) => {
-    if (config.url) {
-      dispatchLoadingEvent(config.url, true, config.method || 'get');
-    }
-    return config;
+apiClient.interceptors.request.use((config) => {
+  if (config.url) {
+    dispatchLoadingEvent(config.url, true, config.method || 'get');
   }
-);
+  return config;
+});
 
 apiClient.interceptors.response.use(
   (response) => {

@@ -29,7 +29,9 @@ export function useArticlePagination(
   const [currentPage, setCurrentPage] = useState(initialState.currentPage || 1);
   const [itemsPerPage] = useState(initialState.itemsPerPage || 10);
   const [sortField, setSortField] = useState<SortField>(initialState.sortField || 'createdAt');
-  const [sortDirection, setSortDirection] = useState<SortDirection>(initialState.sortDirection || 'desc');
+  const [sortDirection, setSortDirection] = useState<SortDirection>(
+    initialState.sortDirection || 'desc'
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -38,7 +40,7 @@ export function useArticlePagination(
 
   const handleSortChange = (field: SortField) => {
     if (field === sortField) {
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortField(field);
       setSortDirection('desc');
@@ -49,7 +51,7 @@ export function useArticlePagination(
   const { sortedArticles, paginatedArticles, totalPages } = useMemo(() => {
     const sorted = [...articles].sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortField) {
         case 'title':
           comparison = a.title.localeCompare(b.title);
@@ -65,18 +67,18 @@ export function useArticlePagination(
         default:
           comparison = 0;
       }
-      
+
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-    
+
     const totalPages = Math.ceil(sorted.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginated = sorted.slice(startIndex, startIndex + itemsPerPage);
-    
+
     return {
       sortedArticles: sorted,
       paginatedArticles: paginated,
-      totalPages
+      totalPages,
     };
   }, [articles, currentPage, itemsPerPage, sortField, sortDirection]);
 
@@ -87,6 +89,6 @@ export function useArticlePagination(
     sortDirection,
     paginatedArticles,
     handlePageChange,
-    handleSortChange
+    handleSortChange,
   };
 }

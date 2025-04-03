@@ -7,7 +7,7 @@ import { isAuthenticated as checkStoredAuth } from '../../utils/tokenStorage';
 const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
-  error: null
+  error: null,
 };
 
 const authSlice = createSlice({
@@ -27,7 +27,7 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     const loginHandlers = createAsyncHandlers<string, AuthState>();
     const logoutHandlers = createAsyncHandlers<void, AuthState>();
-    
+
     builder
       .addCase(login.pending, loginHandlers.pending)
       .addCase(login.fulfilled, (state) => {
@@ -36,7 +36,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.rejected, loginHandlers.rejected);
-    
+
     builder
       .addCase(logout.pending, logoutHandlers.pending)
       .addCase(logout.fulfilled, (state) => {

@@ -8,16 +8,16 @@ import createMockStore from '../../utils/testing/mockStore';
 
 jest.mock('../../store/actions/articleActions', () => ({
   fetchArticles: jest.fn(() => ({ type: 'articles/fetchArticles/fulfilled' })),
-  deleteArticle: jest.fn(() => ({ type: 'articles/deleteArticle/fulfilled' }))
+  deleteArticle: jest.fn(() => ({ type: 'articles/deleteArticle/fulfilled' })),
 }));
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn()
+  useNavigate: () => jest.fn(),
 }));
 
 jest.mock('../../store/slices/articlesEntitySlice', () => ({
-  selectAllArticles: (state) => state.articles.articles || []
+  selectAllArticles: (state) => state.articles.articles || [],
 }));
 
 describe('AdminArticleList Page', () => {
@@ -28,7 +28,7 @@ describe('AdminArticleList Page', () => {
 
     store = createMockStore({
       auth: {
-        isAuthenticated: true
+        isAuthenticated: true,
       },
       articles: {
         articles: [
@@ -36,14 +36,14 @@ describe('AdminArticleList Page', () => {
             articleId: 'article-1',
             title: 'Test Article 1',
             perex: 'Test perex 1',
-            createdAt: '2023-01-01T12:00:00Z'
+            createdAt: '2023-01-01T12:00:00Z',
           },
           {
             articleId: 'article-2',
             title: 'Test Article 2',
             perex: 'Test perex 2',
-            createdAt: '2023-01-02T12:00:00Z'
-          }
+            createdAt: '2023-01-02T12:00:00Z',
+          },
         ],
         loading: false,
         error: null,
@@ -53,16 +53,16 @@ describe('AdminArticleList Page', () => {
             articleId: 'article-1',
             title: 'Test Article 1',
             perex: 'Test perex 1',
-            createdAt: '2023-01-01T12:00:00Z'
+            createdAt: '2023-01-01T12:00:00Z',
           },
           'article-2': {
             articleId: 'article-2',
             title: 'Test Article 2',
             perex: 'Test perex 2',
-            createdAt: '2023-01-02T12:00:00Z'
-          }
-        }
-      }
+            createdAt: '2023-01-02T12:00:00Z',
+          },
+        },
+      },
     });
   });
 
@@ -78,7 +78,7 @@ describe('AdminArticleList Page', () => {
 
   it('fetches articles on mount', async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(fetchArticles).toHaveBeenCalled();
     });
@@ -86,7 +86,7 @@ describe('AdminArticleList Page', () => {
 
   it('renders the article list', () => {
     renderComponent();
-    
+
     expect(screen.getByText('My Articles')).toBeInTheDocument();
     expect(screen.getByText('Test Article 1')).toBeInTheDocument();
     expect(screen.getByText('Test Article 2')).toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('AdminArticleList Page', () => {
 
   it('shows a "Create New Article" button', () => {
     renderComponent();
-    
+
     expect(screen.getByText('Create New Article')).toBeInTheDocument();
   });
 });

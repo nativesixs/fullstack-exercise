@@ -24,7 +24,7 @@ export function useAsync<T, P extends any[] = any[]>(
   const execute = useCallback(
     async (...params: P): Promise<T | null> => {
       setState({ data: null, loading: true, error: null });
-      
+
       try {
         const data = await asyncFunction(...params);
         setState({ data, loading: false, error: null });

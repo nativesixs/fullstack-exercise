@@ -47,32 +47,20 @@ const ArticleTable: React.FC<ArticleTableProps> = ({
       <Table variant="simple">
         <Thead>
           <Tr>
-            <Th 
-              cursor="pointer" 
-              onClick={() => onSort('title')}
-              userSelect="none"
-            >
+            <Th cursor="pointer" onClick={() => onSort('title')} userSelect="none">
               <Flex align="center">
                 Article Title
                 {getSortIcon('title')}
               </Flex>
             </Th>
-            <Th 
-              cursor="pointer" 
-              onClick={() => onSort('createdAt')}
-              userSelect="none"
-            >
+            <Th cursor="pointer" onClick={() => onSort('createdAt')} userSelect="none">
               <Flex align="center">
                 Created At
                 {getSortIcon('createdAt')}
               </Flex>
             </Th>
             <Th>Author</Th>
-            <Th 
-              cursor="pointer" 
-              onClick={() => onSort('comments')}
-              userSelect="none"
-            >
+            <Th cursor="pointer" onClick={() => onSort('comments')} userSelect="none">
               <Flex align="center">
                 Comments
                 {getSortIcon('comments')}

@@ -6,7 +6,7 @@ import {
   PayloadAction,
   SliceCaseReducers,
   ValidateSliceCaseReducers,
-  EntityId
+  EntityId,
 } from '@reduxjs/toolkit';
 import { createAsyncThunk } from './reduxHelpers';
 
@@ -19,7 +19,9 @@ export interface EntityStateExt<T, K extends EntityId = string> extends EntitySt
 export function createEntitySlice<
   T extends { [key: string]: any },
   K extends EntityId = string,
-  Reducers extends SliceCaseReducers<EntityStateExt<T, K>> = SliceCaseReducers<EntityStateExt<T, K>>
+  Reducers extends SliceCaseReducers<EntityStateExt<T, K>> = SliceCaseReducers<
+    EntityStateExt<T, K>
+  >,
 >(
   name: string,
   selectId: (entity: T) => K,
@@ -27,9 +29,9 @@ export function createEntitySlice<
   extraReducers?: (builder: any) => void
 ) {
   const adapter = createEntityAdapter<T, K>({
-    selectId
+    selectId,
   });
-  
+
   const initialState = adapter.getInitialState<{
     loading: boolean;
     error: string | null;
@@ -37,9 +39,9 @@ export function createEntitySlice<
   }>({
     loading: false,
     error: null,
-    selectedId: null as K | null
+    selectedId: null as K | null,
   });
-  
+
   const slice = createSlice({
     name,
     initialState,
@@ -62,15 +64,15 @@ export function createEntitySlice<
       setSelectedId: (state: EntityStateExt<T, K>, action: PayloadAction<K | null>) => {
         state.selectedId = action.payload;
       },
-      ...reducers as any
+      ...(reducers as any),
     },
-    extraReducers
+    extraReducers,
   });
-  
+
   return {
     slice,
     adapter,
-    ...adapter.getSelectors()
+    ...adapter.getSelectors(),
   };
 }
 
@@ -80,7 +82,7 @@ export function createEntityThunk<ResultType, ArgType = void, K extends EntityId
   adapter: EntityAdapter<any, K>
 ) {
   const thunk = createAsyncThunk<ResultType, ArgType>(typePrefix, payloadCreator);
-  
+
   return {
     thunk,
     reducers: {
@@ -99,7 +101,7 @@ export function createEntityThunk<ResultType, ArgType = void, K extends EntityId
       rejected: (state: EntityStateExt<any, K>, action: PayloadAction<string>) => {
         state.loading = false;
         state.error = action.payload;
-      }
-    }
+      },
+    },
   };
 }

@@ -7,19 +7,19 @@ export const useCommentVoting = (isAuthenticated: boolean) => {
 
   const handleVote = async (commentId: string, voteType: VoteType) => {
     if (!isAuthenticated) return;
-    
+
     try {
       if (voteType === 'up') {
         await upvoteComment(commentId);
         setUserVotes({
           ...userVotes,
-          [commentId]: 1
+          [commentId]: 1,
         });
       } else {
         await downvoteComment(commentId);
         setUserVotes({
           ...userVotes,
-          [commentId]: -1
+          [commentId]: -1,
         });
       }
     } catch (error) {

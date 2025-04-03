@@ -75,15 +75,14 @@ const articleSlice = createSlice({
         state.error = null;
       })
       .addCase(updateArticle.fulfilled, (state, action) => {
-        // replace article in the array instead of modifying it
-        state.articles = state.articles.map(article => 
+        state.articles = state.articles.map((article) =>
           article.articleId === action.payload.articleId ? action.payload : article
         );
-        
+
         if (state.currentArticle?.articleId === action.payload.articleId) {
           state.currentArticle = action.payload;
         }
-        
+
         state.loading = false;
       })
       .addCase(updateArticle.rejected, (state, action) => {
@@ -97,9 +96,7 @@ const articleSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteArticle.fulfilled, (state, action) => {
-        state.articles = state.articles.filter(
-          (article) => article.articleId !== action.payload
-        );
+        state.articles = state.articles.filter((article) => article.articleId !== action.payload);
         if (state.currentArticle?.articleId === action.payload) {
           state.currentArticle = null;
         }

@@ -18,11 +18,11 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const location = useLocation();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
-  
+
   return children;
 };
 
@@ -33,33 +33,33 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<ArticleList />} />
       <Route path="/articles/:articleId" element={<ArticleDetail />} />
       <Route path="/login" element={<Login />} />
-      
+
       {/* Protected admin routes */}
-      <Route 
-        path="/admin/articles" 
+      <Route
+        path="/admin/articles"
         element={
           <ProtectedRoute>
             <AdminArticleList />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/admin/articles/:articleId" 
+      <Route
+        path="/admin/articles/:articleId"
         element={
           <ProtectedRoute>
             <AdminArticleDetail />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/admin/new-article" 
+      <Route
+        path="/admin/new-article"
         element={
           <ProtectedRoute>
             <NewArticle />
           </ProtectedRoute>
-        } 
+        }
       />
-      
+
       {/* Fallback route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

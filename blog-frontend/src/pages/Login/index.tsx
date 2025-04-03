@@ -30,9 +30,9 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
-  
+
   const { isAuthenticated, loading, error } = useSelector((state: RootState) => state.auth);
-  
+
   const from = location.state?.from?.pathname || '/admin/articles';
 
   useEffect(() => {
@@ -64,28 +64,22 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) {
       return;
     }
-    
+
     try {
       await dispatch(login({ username, password })).unwrap();
-      toast({
-        title: 'Login successful',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    } catch (error) {
+    } catch (err) {
+      console.error('Login failed:', err);
     }
   };
 
   return (
-    <Container maxW="container.sm" py={20}>
+    <Container maxW="container.xl" py={10}>
       <Flex minH="50vh" align="center" justify="center">
-        <Box 
-          bg="white" 
+        <Box
+          bg="white"
           p={10}
           borderRadius="xl"
           boxShadow="0 10px 25px rgba(0, 0, 0, 0.08)"

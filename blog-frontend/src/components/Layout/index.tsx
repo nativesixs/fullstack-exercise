@@ -16,7 +16,7 @@ import {
   MenuList,
   MenuItem,
   Avatar,
-  IconButton
+  IconButton,
 } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
@@ -30,7 +30,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const bgColor = useColorModeValue('gray.50', 'gray.900');
 
@@ -40,9 +40,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const isActive = (path: string) => {
-    return location.pathname === path || 
-    (path === '/admin/articles' && location.pathname.startsWith('/admin/articles/')) ||
-    (path === '/' && location.pathname.startsWith('/articles/'));
+    return (
+      location.pathname === path ||
+      (path === '/admin/articles' && location.pathname.startsWith('/admin/articles/')) ||
+      (path === '/' && location.pathname.startsWith('/articles/'))
+    );
   };
 
   return (
@@ -56,26 +58,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   Applifting
                 </Link>
               </Heading>
-              
+
               <HStack spacing={6}>
-                <Link 
-                  as={RouterLink} 
-                  to="/" 
-                  fontWeight={isActive('/') ? "600" : "400"}
-                  color={isActive('/') ? "brand.500" : "gray.700"}
-                  borderBottom={isActive('/') ? "2px solid" : "none"}
+                <Link
+                  as={RouterLink}
+                  to="/"
+                  fontWeight={isActive('/') ? '600' : '400'}
+                  color={isActive('/') ? 'brand.500' : 'gray.700'}
+                  borderBottom={isActive('/') ? '2px solid' : 'none'}
                   borderColor="brand.500"
                   pb={1}
                 >
                   Recent Articles
                 </Link>
-                
-                <Link 
-                  as={RouterLink} 
-                  to="/about" 
-                  fontWeight={isActive('/about') ? "600" : "400"}
-                  color={isActive('/about') ? "brand.500" : "gray.700"}
-                  borderBottom={isActive('/about') ? "2px solid" : "none"}
+
+                <Link
+                  as={RouterLink}
+                  to="/about"
+                  fontWeight={isActive('/about') ? '600' : '400'}
+                  color={isActive('/about') ? 'brand.500' : 'gray.700'}
+                  borderBottom={isActive('/about') ? '2px solid' : 'none'}
                   borderColor="brand.500"
                   pb={1}
                 >
@@ -83,17 +85,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Link>
               </HStack>
             </HStack>
-            
+
             <Spacer />
-            
+
             <HStack spacing={6}>
               {isAuthenticated && (
-                <Link 
-                  as={RouterLink} 
-                  to="/admin/articles" 
-                  fontWeight={isActive('/admin/articles') ? "600" : "400"}
-                  color={isActive('/admin/articles') ? "brand.500" : "gray.700"}
-                  borderBottom={isActive('/admin/articles') ? "2px solid" : "none"}
+                <Link
+                  as={RouterLink}
+                  to="/admin/articles"
+                  fontWeight={isActive('/admin/articles') ? '600' : '400'}
+                  color={isActive('/admin/articles') ? 'brand.500' : 'gray.700'}
+                  borderBottom={isActive('/admin/articles') ? '2px solid' : 'none'}
                   borderColor="brand.500"
                   pb={1}
                   mr={4}
@@ -103,19 +105,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
 
               {isAuthenticated && (
-                <Button 
+                <Button
                   as={RouterLink}
                   to="/admin/new-article"
                   variant="ghost"
                   colorScheme="blue"
                   size="sm"
-                  leftIcon={<Box as="span" fontSize="lg">+</Box>}
+                  leftIcon={
+                    <Box as="span" fontSize="lg">
+                      +
+                    </Box>
+                  }
                   display={{ base: 'none', md: 'flex' }}
                 >
                   Create new article
                 </Button>
               )}
-              
+
               {isAuthenticated ? (
                 <Menu>
                   <MenuButton
@@ -129,10 +135,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     }
                   />
                   <MenuList>
-                    <MenuItem 
-                      as={RouterLink} 
+                    <MenuItem
+                      as={RouterLink}
                       to="/admin/articles"
-                      fontWeight={isActive('/admin/articles') ? "600" : "400"}
+                      fontWeight={isActive('/admin/articles') ? '600' : '400'}
                     >
                       My Articles
                     </MenuItem>
@@ -140,26 +146,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </MenuList>
                 </Menu>
               ) : (
-                <Button 
-                  as={RouterLink} 
-                  to="/login"
-                  variant="outline"
-                  size="sm"
-                >
+                <Button as={RouterLink} to="/login" variant="outline" size="sm">
                   Log in
                 </Button>
               )}
-              
             </HStack>
           </Flex>
         </Container>
         <Divider />
       </Box>
-      
+
       <Box flex="1" bg={bgColor} pt={8} pb={16}>
-        <Container maxW="container.xl">
-          {children}
-        </Container>
+        <Container maxW="container.xl">{children}</Container>
       </Box>
     </Box>
   );

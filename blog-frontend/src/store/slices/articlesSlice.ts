@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Article, ArticleDetail } from '../../types/article';
-import { 
-  fetchArticles, 
-  fetchArticleById, 
-  createArticle, 
-  updateArticle, 
-  deleteArticle 
+import {
+  fetchArticles,
+  fetchArticleById,
+  createArticle,
+  updateArticle,
+  deleteArticle,
 } from '../actions/articleActions';
 import { ArticlesState } from '../../types/state';
 import { createAsyncHandlers } from '../../utils/reduxHelpers';
@@ -14,7 +14,7 @@ const initialState: ArticlesState = {
   articles: [],
   currentArticle: null,
   loading: false,
-  error: null
+  error: null,
 };
 
 const articlesSlice = createSlice({
@@ -30,7 +30,9 @@ const articlesSlice = createSlice({
   },
   extraReducers: (builder) => {
     const fetchArticlesHandlers = createAsyncHandlers<Article[], ArticlesState>('articles');
-    const fetchArticleByIdHandlers = createAsyncHandlers<ArticleDetail, ArticlesState>('currentArticle');
+    const fetchArticleByIdHandlers = createAsyncHandlers<ArticleDetail, ArticlesState>(
+      'currentArticle'
+    );
 
     builder
       .addCase(fetchArticles.pending, fetchArticlesHandlers.pending)
@@ -69,7 +71,7 @@ const articlesSlice = createSlice({
         state.error = null;
       })
       .addCase(updateArticle.fulfilled, (state, action: PayloadAction<ArticleDetail>) => {
-        state.articles = state.articles.map(article => 
+        state.articles = state.articles.map((article) =>
           article.articleId === action.payload.articleId ? action.payload : article
         );
         state.currentArticle = action.payload;
@@ -86,9 +88,7 @@ const articlesSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteArticle.fulfilled, (state, action: PayloadAction<string>) => {
-        state.articles = state.articles.filter(article => 
-          article.articleId !== action.payload
-        );
+        state.articles = state.articles.filter((article) => article.articleId !== action.payload);
         if (state.currentArticle?.articleId === action.payload) {
           state.currentArticle = null;
         }
@@ -98,7 +98,7 @@ const articlesSlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Failed to delete article';
       });
-  }
+  },
 });
 
 export const { clearArticleError, clearCurrentArticle } = articlesSlice.actions;

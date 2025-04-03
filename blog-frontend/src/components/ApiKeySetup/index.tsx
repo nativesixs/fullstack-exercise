@@ -12,7 +12,7 @@ import {
   FormLabel,
   Input,
   Text,
-  useToast
+  useToast,
 } from '@chakra-ui/react';
 
 interface ApiKeySetupProps {
@@ -38,7 +38,7 @@ const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ isOpen, onClose }) => {
     }
 
     localStorage.setItem('apiKey', apiKeyValue);
-    
+
     toast({
       title: 'Success',
       description: 'API key has been saved',
@@ -46,7 +46,7 @@ const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ isOpen, onClose }) => {
       duration: 3000,
       isClosable: true,
     });
-    
+
     onClose();
     window.location.reload();
   };
@@ -62,11 +62,10 @@ const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ isOpen, onClose }) => {
         <ModalHeader>API Key Setup</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
+          <Text mb={4}>You need to set up an API key before you can use this application.</Text>
           <Text mb={4}>
-            You need to set up an API key before you can use this application.
-          </Text>
-          <Text mb={4}>
-            If you don't have an API key, you can create one by clicking the "Create New Tenant" button below.
+            If you don't have an API key, you can create one by clicking the "Create New Tenant"
+            button below.
           </Text>
           <form onSubmit={handleSubmit}>
             <FormControl mb={4}>

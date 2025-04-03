@@ -1,11 +1,17 @@
 import { createEntityAdapter, createSlice, PayloadAction, EntityState } from '@reduxjs/toolkit';
 import { Article, ArticleDetail } from '../../types/article';
-import { fetchArticles, fetchArticleById, createArticle, updateArticle, deleteArticle } from '../actions/articleActions';
+import {
+  fetchArticles,
+  fetchArticleById,
+  createArticle,
+  updateArticle,
+  deleteArticle,
+} from '../actions/articleActions';
 import { RootState } from '../store';
 
 const articlesAdapter = createEntityAdapter<Article, string>({
   selectId: (article) => article.articleId,
-  sortComparer: (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  sortComparer: (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
 });
 
 export interface ArticlesState extends EntityState<Article, string> {
@@ -19,7 +25,7 @@ const initialState: ArticlesState = articlesAdapter.getInitialState({
   loading: false,
   error: null,
   currentArticleId: null,
-  currentArticle: null
+  currentArticle: null,
 });
 
 const articlesSlice = createSlice({
@@ -32,7 +38,7 @@ const articlesSlice = createSlice({
     },
     clearArticleError: (state) => {
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -46,7 +52,7 @@ const articlesSlice = createSlice({
       })
       .addCase(fetchArticles.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || 'Failed to fetch articles';
+        state.error = (action.payload as string) || 'Failed to fetch articles';
       });
 
     builder
@@ -57,14 +63,14 @@ const articlesSlice = createSlice({
       .addCase(fetchArticleById.fulfilled, (state, action: PayloadAction<ArticleDetail>) => {
         state.currentArticle = action.payload;
         state.currentArticleId = action.payload.articleId;
-        
+
         articlesAdapter.upsertOne(state, action.payload);
-        
+
         state.loading = false;
       })
       .addCase(fetchArticleById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || 'Failed to fetch article';
+        state.error = (action.payload as string) || 'Failed to fetch article';
       });
 
     builder
@@ -80,7 +86,7 @@ const articlesSlice = createSlice({
       })
       .addCase(createArticle.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || 'Failed to create article';
+        state.error = (action.payload as string) || 'Failed to create article';
       });
 
     builder
@@ -90,16 +96,16 @@ const articlesSlice = createSlice({
       })
       .addCase(updateArticle.fulfilled, (state, action: PayloadAction<ArticleDetail>) => {
         articlesAdapter.upsertOne(state, action.payload);
-        
+
         if (state.currentArticleId === action.payload.articleId) {
           state.currentArticle = action.payload;
         }
-        
+
         state.loading = false;
       })
       .addCase(updateArticle.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || 'Failed to update article';
+        state.error = (action.payload as string) || 'Failed to update article';
       });
 
     builder
@@ -109,19 +115,19 @@ const articlesSlice = createSlice({
       })
       .addCase(deleteArticle.fulfilled, (state, action: PayloadAction<string>) => {
         articlesAdapter.removeOne(state, action.payload);
-        
+
         if (state.currentArticleId === action.payload) {
           state.currentArticle = null;
           state.currentArticleId = null;
         }
-        
+
         state.loading = false;
       })
       .addCase(deleteArticle.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || 'Failed to delete article';
+        state.error = (action.payload as string) || 'Failed to delete article';
       });
-  }
+  },
 });
 
 export const { setCurrentArticle, clearArticleError } = articlesSlice.actions;
@@ -131,7 +137,7 @@ export const {
   selectById: selectArticleById,
   selectIds: selectArticleIds,
   selectEntities: selectArticleEntities,
-  selectTotal: selectTotalArticles
-} = articlesAdapter.getSelectors<RootState>(state => state.articles);
+  selectTotal: selectTotalArticles,
+} = articlesAdapter.getSelectors<RootState>((state) => state.articles);
 
 export default articlesSlice.reducer;

@@ -4,9 +4,7 @@ import { BaseState } from '../types/state';
 /**
  * Utility to extract error message from various error formats
  */
-export const extractErrorMessage = (
-  error: SerializedError | string | Error | unknown
-): string => {
+export const extractErrorMessage = (error: SerializedError | string | Error | unknown): string => {
   if (typeof error === 'string') {
     return error;
   }
@@ -34,14 +32,11 @@ export function createAsyncThunk<Returned, ThunkArg = void>(
       } catch (error: any) {
         if (error.response) {
           return rejectWithValue(
-            error.response.data?.message || 
-            `Failed with status ${error.response.status}`
+            error.response.data?.message || `Failed with status ${error.response.status}`
           );
         }
-        
-        return rejectWithValue(
-          error.message || `Failed in ${typePrefix}`
-        );
+
+        return rejectWithValue(error.message || `Failed in ${typePrefix}`);
       }
     }
   );
@@ -55,7 +50,7 @@ export const createAsyncHandlers = <T, S extends BaseState>(dataKey?: keyof S) =
     },
     fulfilled: (state: S, action: { payload: T }) => {
       state.loading = false;
-      
+
       if (dataKey) {
         (state as any)[dataKey] = action.payload;
       } else if ('data' in state) {

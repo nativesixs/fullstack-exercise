@@ -17,7 +17,7 @@ describe('ArticleCard', () => {
     perex: 'This is a test article perex.',
     imageId: 'test-image-id',
     createdAt: '2023-01-01T12:00:00Z',
-    lastUpdatedAt: '2023-01-01T12:00:00Z'
+    lastUpdatedAt: '2023-01-01T12:00:00Z',
   };
 
   it('renders article image', () => {
@@ -28,7 +28,7 @@ describe('ArticleCard', () => {
         </BrowserRouter>
       </ChakraProvider>
     );
-    
+
     expect(screen.getByTestId('mock-image')).toBeInTheDocument();
   });
 
@@ -40,7 +40,7 @@ describe('ArticleCard', () => {
         </BrowserRouter>
       </ChakraProvider>
     );
-    
+
     const link = screen.getByText('Read whole article');
     expect(link).toBeInTheDocument();
     expect(link.closest('a')).toHaveAttribute('href', `/articles/${mockArticle.articleId}`);

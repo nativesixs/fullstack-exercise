@@ -22,9 +22,6 @@ export const login = createAsyncThunk<string, LoginCredentials>(
   }
 );
 
-export const logout = createAsyncThunk<void, void>(
-  'auth/logout',
-  async () => {
-    removeAccessToken();
-  }
-);
+export const logout = createAsyncThunk<void, void>('auth/logout', async () => {
+  removeAccessToken();
+});

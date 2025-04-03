@@ -14,7 +14,7 @@ export class WebSocketService {
     this.subscribe = this.subscribe.bind(this);
     this.unsubscribe = this.unsubscribe.bind(this);
     this.handleMockMessage = this.handleMockMessage.bind(this);
-    
+
     window.addEventListener('mockWsMessage', this.handleMockMessage as EventListener);
     console.log('Mock WebSocket service initialized');
   }
@@ -34,17 +34,17 @@ export class WebSocketService {
 
   public unsubscribe(callback: CommentEventCallback): void {
     console.log('Unsubscribing from mock WebSocket events');
-    this.listeners = this.listeners.filter(listener => listener !== callback);
+    this.listeners = this.listeners.filter((listener) => listener !== callback);
   }
-  
+
   private handleMockMessage(event: Event): void {
     try {
       const customEvent = event as CustomEvent;
       const data = customEvent.detail as CommentEvent;
-      
+
       if (data && data.changeType && data.comment) {
         console.log('Mock WebSocket message received:', data);
-        this.listeners.forEach(listener => listener(data));
+        this.listeners.forEach((listener) => listener(data));
       }
     } catch (error) {
       console.error('Error handling mock WebSocket message:', error);

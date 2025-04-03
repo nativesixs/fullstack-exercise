@@ -12,17 +12,13 @@ export const postComment = async (commentData: CommentCreateData): Promise<Comme
       throw new Error('API key is required');
     }
 
-    const response = await axios.post<Comment>(
-      `${config.API_URL}/comments`,
-      commentData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-KEY': apiKey,
-          ...(accessToken ? { 'Authorization': accessToken } : {})
-        }
-      }
-    );
+    const response = await axios.post<Comment>(`${config.API_URL}/comments`, commentData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': apiKey,
+        ...(accessToken ? { Authorization: accessToken } : {}),
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error posting comment:', error);
@@ -45,8 +41,8 @@ export const upvoteComment = async (commentId: string): Promise<Comment> => {
       {
         headers: {
           'X-API-KEY': apiKey,
-          ...(accessToken ? { 'Authorization': accessToken } : {})
-        }
+          ...(accessToken ? { Authorization: accessToken } : {}),
+        },
       }
     );
     return response.data;
@@ -71,8 +67,8 @@ export const downvoteComment = async (commentId: string): Promise<Comment> => {
       {
         headers: {
           'X-API-KEY': apiKey,
-          ...(accessToken ? { 'Authorization': accessToken } : {})
-        }
+          ...(accessToken ? { Authorization: accessToken } : {}),
+        },
       }
     );
     return response.data;
@@ -96,8 +92,8 @@ export const getComments = async (articleId: string): Promise<Comment[]> => {
       {
         headers: {
           'X-API-KEY': apiKey,
-          ...(accessToken ? { 'Authorization': accessToken } : {})
-        }
+          ...(accessToken ? { Authorization: accessToken } : {}),
+        },
       }
     );
     return response.data;

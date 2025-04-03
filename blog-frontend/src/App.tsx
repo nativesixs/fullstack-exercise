@@ -11,11 +11,11 @@ import { AppDispatch } from './store/store';
 
 const AuthChecker: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const dispatch = useDispatch<AppDispatch>();
-  
+
   useEffect(() => {
     dispatch(checkAuthentication());
   }, [dispatch]);
-  
+
   return <>{children}</>;
 };
 

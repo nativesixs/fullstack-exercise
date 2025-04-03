@@ -8,27 +8,23 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ 
-  currentPage, 
-  totalPages, 
-  onPageChange 
-}) => {
+const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-  
+
   // max 5 pages visible, maybe we want more?
   const getVisiblePages = () => {
     if (totalPages <= 5) return pages;
-    
+
     if (currentPage <= 3) return pages.slice(0, 5);
     if (currentPage >= totalPages - 2) return pages.slice(totalPages - 5);
-    
+
     return pages.slice(currentPage - 3, currentPage + 2);
   };
-  
+
   const visiblePages = getVisiblePages();
-  
+
   if (totalPages <= 1) return null;
-  
+
   return (
     <Flex justify="center" mt={8} align="center">
       <IconButton
@@ -40,15 +36,10 @@ const Pagination: React.FC<PaginationProps> = ({
         size="sm"
         mr={2}
       />
-      
+
       {currentPage > 3 && totalPages > 5 && (
         <>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onPageChange(1)}
-            mr={2}
-          >
+          <Button size="sm" variant="outline" onClick={() => onPageChange(1)} mr={2}>
             1
           </Button>
           {currentPage > 4 && (
@@ -58,8 +49,8 @@ const Pagination: React.FC<PaginationProps> = ({
           )}
         </>
       )}
-      
-      {visiblePages.map(page => (
+
+      {visiblePages.map((page) => (
         <Button
           key={page}
           size="sm"
@@ -71,7 +62,7 @@ const Pagination: React.FC<PaginationProps> = ({
           {page}
         </Button>
       ))}
-      
+
       {currentPage < totalPages - 2 && totalPages > 5 && (
         <>
           {currentPage < totalPages - 3 && (
@@ -79,17 +70,12 @@ const Pagination: React.FC<PaginationProps> = ({
               ...
             </Text>
           )}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onPageChange(totalPages)}
-            ml={2}
-          >
+          <Button size="sm" variant="outline" onClick={() => onPageChange(totalPages)} ml={2}>
             {totalPages}
           </Button>
         </>
       )}
-      
+
       <IconButton
         aria-label="Next page"
         icon={<ChevronRightIcon />}

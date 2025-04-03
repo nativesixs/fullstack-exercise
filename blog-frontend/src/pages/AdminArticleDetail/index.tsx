@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Heading,
-  Flex,
-  Spinner,
-  Text,
-  useToast,
-} from '@chakra-ui/react';
+import { Box, Heading, Flex, Spinner, Text, useToast } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticleById, updateArticle } from '../../store/actions/articleActions';
@@ -30,22 +23,24 @@ const AdminArticleDetail: React.FC = () => {
 
   const handleSubmit = async (formData: ArticleFormData & { imageId?: string }) => {
     if (!articleId) return;
-    
+
     setSubmitting(true);
-    
+
     try {
-      await dispatch(updateArticle({
-        articleId,
-        articleData: formData,
-      })).unwrap();
-      
+      await dispatch(
+        updateArticle({
+          articleId,
+          articleData: formData,
+        })
+      ).unwrap();
+
       toast({
         title: 'Article updated',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
-      
+
       navigate('/admin/articles');
     } catch (error) {
       toast({
@@ -71,7 +66,9 @@ const AdminArticleDetail: React.FC = () => {
   if (error) {
     return (
       <Box>
-        <Heading as="h1" mb={4}>Edit Article</Heading>
+        <Heading as="h1" mb={4}>
+          Edit Article
+        </Heading>
         <Text color="red.500">{error}</Text>
       </Box>
     );
@@ -80,7 +77,9 @@ const AdminArticleDetail: React.FC = () => {
   if (!currentArticle) {
     return (
       <Box>
-        <Heading as="h1" mb={4}>Edit Article</Heading>
+        <Heading as="h1" mb={4}>
+          Edit Article
+        </Heading>
         <Text>Article not found</Text>
       </Box>
     );
@@ -88,8 +87,10 @@ const AdminArticleDetail: React.FC = () => {
 
   return (
     <Box>
-      <Heading as="h1" mb={6}>Edit Article</Heading>
-      
+      <Heading as="h1" mb={6}>
+        Edit Article
+      </Heading>
+
       <ArticleForm
         initialData={{
           title: currentArticle.title,

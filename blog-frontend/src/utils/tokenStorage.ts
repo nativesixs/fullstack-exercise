@@ -22,7 +22,7 @@ export const getAccessToken = (): string | null => {
 
 export const setAccessToken = (token: string, expirySeconds?: number): void => {
   localStorage.setItem(config.AUTH_TOKEN_KEY, token);
-  
+
   if (expirySeconds) {
     const expiryTime = Date.now() + expirySeconds * 1000;
     localStorage.setItem(config.AUTH_TOKEN_EXPIRY_KEY, expiryTime.toString());

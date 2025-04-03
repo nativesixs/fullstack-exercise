@@ -6,16 +6,24 @@ import App from './App';
 import { store } from './store/store';
 
 jest.mock('react-router-dom', () => ({
-  BrowserRouter: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-router">{children}</div>,
-  Routes: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-routes">{children}</div>,
-  Route: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-route">{children}</div>,
+  BrowserRouter: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="mock-router">{children}</div>
+  ),
+  Routes: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="mock-routes">{children}</div>
+  ),
+  Route: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="mock-route">{children}</div>
+  ),
   Navigate: () => <div data-testid="mock-navigate" />,
   useNavigate: () => jest.fn(),
   useLocation: () => ({ pathname: '/' }),
   useParams: () => ({}),
-  Link: ({ children, to }: { children: React.ReactNode, to: string }) => (
-    <a href={to} data-testid="mock-link">{children}</a>
-  )
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+    <a href={to} data-testid="mock-link">
+      {children}
+    </a>
+  ),
 }));
 
 jest.mock('./components/Layout', () => {
@@ -23,12 +31,12 @@ jest.mock('./components/Layout', () => {
     __esModule: true,
     default: ({ children }: { children: React.ReactNode }) => (
       <div data-testid="mock-layout">{children}</div>
-    )
+    ),
   };
 });
 
 jest.mock('./api/articleApi', () => ({
-  getArticles: jest.fn().mockResolvedValue([])
+  getArticles: jest.fn().mockResolvedValue([]),
 }));
 
 describe('App', () => {
@@ -40,7 +48,7 @@ describe('App', () => {
         </ChakraProvider>
       </Provider>
     );
-    
+
     expect(screen.getByTestId('mock-router')).toBeInTheDocument();
   });
 });

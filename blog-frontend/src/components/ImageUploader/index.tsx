@@ -1,12 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  Box,
-  FormControl,
-  FormLabel,
-  Input,
-  Text,
-  useToast,
-} from '@chakra-ui/react';
+import { Box, FormControl, FormLabel, Input, Text, useToast } from '@chakra-ui/react';
 import { uploadImage, deleteImage } from '../../api/imageApi';
 import ImagePreview from './components/ImagePreview';
 import UploadDropzone from './components/UploadDropzone';
@@ -42,7 +35,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       setError('Image size should be less than 2MB');
       return false;
     }
-    
+
     return true;
   };
 
@@ -75,7 +68,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     } catch (error) {
       console.error('Upload error:', error);
       setError('Failed to upload image. Please try again.');
-      
+
       toast({
         title: 'Upload failed',
         description: 'There was a problem uploading your image',
@@ -85,7 +78,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       });
     } finally {
       setIsUploading(false);
-      
+
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -108,7 +101,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       });
     } catch (error) {
       console.error('Delete error:', error);
-      
+
       toast({
         title: 'Error',
         description: 'Failed to remove image',
@@ -123,20 +116,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     <Box>
       <FormControl mb={4}>
         <FormLabel>Featured Image</FormLabel>
-        
+
         {imageId ? (
-          <ImagePreview 
-            imageId={imageId} 
+          <ImagePreview
+            imageId={imageId}
             onRemove={handleRemoveImage}
             onUploadNew={() => fileInputRef.current?.click()}
           />
         ) : (
-          <UploadDropzone 
-            isUploading={isUploading}
-            onClick={() => fileInputRef.current?.click()}
-          />
+          <UploadDropzone isUploading={isUploading} onClick={() => fileInputRef.current?.click()} />
         )}
-        
+
         <Input
           ref={fileInputRef}
           type="file"
@@ -144,7 +134,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           onChange={handleFileChange}
           display="none"
         />
-        
+
         {error && (
           <Text color="red.500" fontSize="sm" mt={2}>
             {error}

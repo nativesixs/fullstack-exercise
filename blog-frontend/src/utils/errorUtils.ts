@@ -22,15 +22,15 @@ export const extractErrorMessage = (error: unknown): string => {
   if (typeof error === 'string') {
     return error;
   }
-  
+
   if (error instanceof Error) {
     return error.message;
   }
-  
+
   if (error && typeof error === 'object' && 'message' in error) {
     return String((error as any).message);
   }
-  
+
   return 'An unknown error occurred';
 };
 
@@ -38,11 +38,11 @@ export const formatErrorMessage = (error: unknown): string => {
   if (typeof error === 'string') {
     return error;
   }
-  
+
   if (error instanceof Error) {
     return error.message;
   }
-  
+
   const typedError = getErrorDetails(error);
   return typedError.message;
 };
@@ -53,27 +53,27 @@ export const getErrorDetails = (error: unknown): TypedError => {
     message: 'An unknown error occurred',
     originalError: error,
   };
-  
+
   if (typeof error === 'string') {
     return {
       ...defaultError,
       message: error,
     };
   }
-  
+
   if (error instanceof Error) {
     return {
       ...defaultError,
       message: error.message,
     };
   }
-  
+
   if (error && typeof error === 'object' && 'isAxiosError' in error) {
     const axiosError = error as AxiosError;
-    
+
     if (axiosError.response) {
       const statusCode = axiosError.response.status;
-      
+
       switch (statusCode) {
         case 401:
           return {
@@ -126,6 +126,6 @@ export const getErrorDetails = (error: unknown): TypedError => {
       };
     }
   }
-  
+
   return defaultError;
 };

@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  Heading,
-  Text,
-  Flex,
-  Select,
-} from '@chakra-ui/react';
+import { Box, Button, Heading, Text, Flex, Select } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
 import { fetchArticles } from '../../store/actions/articleActions';
@@ -59,18 +52,16 @@ const ArticleList: React.FC = () => {
   if (error && error.includes('API key')) {
     return (
       <Box>
-        <Heading as="h1" mb={4}>Recent Articles</Heading>
-        <Text color="red.500" mb={4}>Error: {error}</Text>
-        <Button 
-          colorScheme="blue" 
-          onClick={() => setIsApiKeyModalOpen(true)}
-        >
+        <Heading as="h1" mb={4}>
+          Recent Articles
+        </Heading>
+        <Text color="red.500" mb={4}>
+          Error: {error}
+        </Text>
+        <Button colorScheme="blue" onClick={() => setIsApiKeyModalOpen(true)}>
           Set API Key
         </Button>
-        <ApiKeySetup 
-          isOpen={isApiKeyModalOpen} 
-          onClose={() => setIsApiKeyModalOpen(false)} 
-        />
+        <ApiKeySetup isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} />
       </Box>
     );
   }
@@ -78,8 +69,12 @@ const ArticleList: React.FC = () => {
   if (error) {
     return (
       <Box>
-        <Heading as="h1" mb={4}>Recent Articles</Heading>
-        <Text color="red.500" mb={4}>Error: {error}</Text>
+        <Heading as="h1" mb={4}>
+          Recent Articles
+        </Heading>
+        <Text color="red.500" mb={4}>
+          Error: {error}
+        </Text>
       </Box>
     );
   }
@@ -87,11 +82,13 @@ const ArticleList: React.FC = () => {
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading as="h1" size="lg" color="gray.800">Recent Articles</Heading>
+        <Heading as="h1" size="lg" color="gray.800">
+          Recent Articles
+        </Heading>
         <Box>
-          <Select 
-            value={sortOrder} 
-            onChange={handleSortChange} 
+          <Select
+            value={sortOrder}
+            onChange={handleSortChange}
             width="200px"
             bg="white"
             borderColor="gray.300"
@@ -102,7 +99,7 @@ const ArticleList: React.FC = () => {
           </Select>
         </Box>
       </Flex>
-      
+
       {!articles || articles.length === 0 ? (
         <Box bg="white" p={8} borderRadius="md" textAlign="center" boxShadow="sm">
           <Text>No articles found.</Text>
@@ -112,7 +109,7 @@ const ArticleList: React.FC = () => {
           {paginatedArticles.map((article) => (
             <ArticleCard key={article.articleId} article={article} />
           ))}
-          
+
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

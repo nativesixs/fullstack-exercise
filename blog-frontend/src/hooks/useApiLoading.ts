@@ -17,26 +17,26 @@ interface LoadingStateEvent extends Event {
 // NOTE - i did not write this, stolen from SO
 export const useApiLoading = (url: string, method?: string): boolean => {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   useEffect(() => {
     const handleLoadingChange = (event: Event) => {
       const customEvent = event as LoadingStateEvent;
       const { url: eventUrl, loading, method: eventMethod } = customEvent.detail;
-      
+
       if (eventUrl.includes(url)) {
         if (!method || eventMethod.toLowerCase() === method.toLowerCase()) {
           setIsLoading(loading);
         }
       }
     };
-    
+
     window.addEventListener('api-loading-state-change', handleLoadingChange);
-    
+
     return () => {
       window.removeEventListener('api-loading-state-change', handleLoadingChange);
     };
   }, [url, method]);
-  
+
   return isLoading;
 };
 

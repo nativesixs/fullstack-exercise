@@ -25,7 +25,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ articleId, onCommentPosted })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     if (!content.trim()) {
       toast({
         title: 'Error',
@@ -36,18 +36,18 @@ const CommentForm: React.FC<CommentFormProps> = ({ articleId, onCommentPosted })
       });
       return;
     }
-    
+
     setSubmitting(true);
-    
+
     try {
       const newComment = await postComment({
         articleId,
-        content
+        content,
       });
-      
+
       setContent('');
       onCommentPosted(newComment.commentId);
-      
+
       toast({
         title: 'Comment posted',
         status: 'success',
@@ -56,9 +56,9 @@ const CommentForm: React.FC<CommentFormProps> = ({ articleId, onCommentPosted })
       });
     } catch (error: any) {
       console.error('Error submitting comment:', error);
-      
+
       let errorMessage = 'Failed to post comment';
-      
+
       if (error.response?.status === 401) {
         errorMessage = 'Authentication required. Please log in to post comments.';
       } else if (error.response?.status === 403) {
@@ -66,9 +66,9 @@ const CommentForm: React.FC<CommentFormProps> = ({ articleId, onCommentPosted })
       } else if (error.response?.status === 500) {
         errorMessage = 'Server error. This might be due to missing authentication.';
       }
-      
+
       setError(errorMessage);
-      
+
       toast({
         title: 'Error',
         description: errorMessage,
@@ -88,7 +88,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ articleId, onCommentPosted })
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       <FormControl mb={4} isRequired>
         <FormLabel>Comment</FormLabel>
         <Textarea
@@ -98,7 +98,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ articleId, onCommentPosted })
           minH="120px"
         />
       </FormControl>
-      
+
       <Button
         type="submit"
         colorScheme="blue"

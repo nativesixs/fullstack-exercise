@@ -10,7 +10,7 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 import SimpleMDE from 'react-simplemde-editor';
-import "easymde/dist/easymde.min.css";
+import 'easymde/dist/easymde.min.css';
 import ImageUploader from '../ImageUploader';
 import { ArticleFormData, validateArticleForm } from '../../utils/formValidation';
 
@@ -57,11 +57,11 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     await onSubmit({
       title,
       perex,
@@ -91,11 +91,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       <VStack spacing={6} align="start">
         <FormControl isInvalid={!!errors.title} isRequired>
           <FormLabel>Article Title</FormLabel>
-          <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
-          />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
           <FormErrorMessage>{errors.title}</FormErrorMessage>
         </FormControl>
 
@@ -112,12 +108,12 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
 
         <FormControl isInvalid={!!errors.content} isRequired>
           <FormLabel>Content</FormLabel>
-          <Box border={errors.content ? "1px solid red" : "1px solid"} borderColor={errors.content ? "red.500" : "gray.200"} borderRadius="md">
-            <SimpleMDE
-              value={content}
-              onChange={setContent}
-              options={editorOptions}
-            />
+          <Box
+            border={errors.content ? '1px solid red' : '1px solid'}
+            borderColor={errors.content ? 'red.500' : 'gray.200'}
+            borderRadius="md"
+          >
+            <SimpleMDE value={content} onChange={setContent} options={editorOptions} />
           </Box>
           <FormErrorMessage>{errors.content}</FormErrorMessage>
         </FormControl>
@@ -132,7 +128,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
           type="submit"
           colorScheme="blue"
           isLoading={isSubmitting}
-          width={{ base: "100%", md: "auto" }}
+          width={{ base: '100%', md: 'auto' }}
         >
           {submitButtonText}
         </Button>

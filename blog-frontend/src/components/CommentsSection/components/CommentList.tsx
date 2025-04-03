@@ -10,11 +10,11 @@ interface CommentListProps {
   onVote: (commentId: string, voteType: VoteType) => Promise<void>;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ 
+const CommentList: React.FC<CommentListProps> = ({
   comments,
   userVotes,
   isAuthenticated,
-  onVote 
+  onVote,
 }) => {
   const sortedComments = [...comments].sort(
     (a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()

@@ -5,14 +5,14 @@ jest.mock('../../api/apiClient', () => ({
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
-  delete: jest.fn()
+  delete: jest.fn(),
 }));
 
 const mockStore = configureStore([]);
 
 describe('Article Actions', () => {
   let store: any;
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
     store = mockStore({
@@ -20,8 +20,8 @@ describe('Article Actions', () => {
         articles: [],
         currentArticle: null,
         loading: false,
-        error: null
-      }
+        error: null,
+      },
     });
   });
 
@@ -29,22 +29,22 @@ describe('Article Actions', () => {
     it('should create the correct action types when fetching articles', async () => {
       const mockArticles = [
         { articleId: 'article-1', title: 'Test Article 1' },
-        { articleId: 'article-2', title: 'Test Article 2' }
+        { articleId: 'article-2', title: 'Test Article 2' },
       ];
-      
-      (apiClient.get as jest.Mock).mockResolvedValueOnce({ 
-        data: { 
+
+      (apiClient.get as jest.Mock).mockResolvedValueOnce({
+        data: {
           items: mockArticles,
-          pagination: { offset: 0, limit: 10, total: 2 }
-        } 
+          pagination: { offset: 0, limit: 10, total: 2 },
+        },
       });
-      
+
       store.dispatch({ type: 'articles/fetchArticles/pending' });
-      store.dispatch({ 
+      store.dispatch({
         type: 'articles/fetchArticles/fulfilled',
-        payload: mockArticles
+        payload: mockArticles,
       });
-      
+
       const actions = store.getActions();
       expect(actions[0].type).toBe('articles/fetchArticles/pending');
       expect(actions[1].type).toBe('articles/fetchArticles/fulfilled');
@@ -53,13 +53,13 @@ describe('Article Actions', () => {
 
     it('should create the correct action types when there is an error', () => {
       const errorMessage = 'API error';
-      
+
       store.dispatch({ type: 'articles/fetchArticles/pending' });
-      store.dispatch({ 
+      store.dispatch({
         type: 'articles/fetchArticles/rejected',
-        payload: errorMessage
+        payload: errorMessage,
       });
-      
+
       const actions = store.getActions();
       expect(actions[0].type).toBe('articles/fetchArticles/pending');
       expect(actions[1].type).toBe('articles/fetchArticles/rejected');
@@ -70,18 +70,18 @@ describe('Article Actions', () => {
   describe('fetchArticleById', () => {
     it('should create the correct action types when fetching an article by ID', () => {
       const articleId = 'article-123';
-      const mockArticle = { 
-        articleId, 
+      const mockArticle = {
+        articleId,
         title: 'Test Article',
-        content: 'Test content'
+        content: 'Test content',
       };
-      
+
       store.dispatch({ type: 'articles/fetchArticleById/pending' });
-      store.dispatch({ 
+      store.dispatch({
         type: 'articles/fetchArticleById/fulfilled',
-        payload: mockArticle
+        payload: mockArticle,
       });
-      
+
       const actions = store.getActions();
       expect(actions[0].type).toBe('articles/fetchArticleById/pending');
       expect(actions[1].type).toBe('articles/fetchArticleById/fulfilled');
@@ -94,21 +94,21 @@ describe('Article Actions', () => {
       const newArticle = {
         title: 'New Article',
         perex: 'Test perex',
-        content: 'Test content'
+        content: 'Test content',
       };
-      
+
       const createdArticle = {
         ...newArticle,
         articleId: 'new-article-123',
-        createdAt: '2023-01-01T12:00:00Z'
+        createdAt: '2023-01-01T12:00:00Z',
       };
-      
+
       store.dispatch({ type: 'articles/createArticle/pending' });
-      store.dispatch({ 
+      store.dispatch({
         type: 'articles/createArticle/fulfilled',
-        payload: createdArticle
+        payload: createdArticle,
       });
-      
+
       const actions = store.getActions();
       expect(actions[0].type).toBe('articles/createArticle/pending');
       expect(actions[1].type).toBe('articles/createArticle/fulfilled');
@@ -119,21 +119,21 @@ describe('Article Actions', () => {
   describe('updateArticle', () => {
     it('should create the correct action types when updating an article', () => {
       const articleId = 'article-123';
-      
+
       const updatedArticle = {
         articleId,
         title: 'Updated Title',
         perex: 'Updated perex',
         content: 'Original content',
-        lastUpdatedAt: '2023-01-02T12:00:00Z'
+        lastUpdatedAt: '2023-01-02T12:00:00Z',
       };
-      
+
       store.dispatch({ type: 'articles/updateArticle/pending' });
-      store.dispatch({ 
+      store.dispatch({
         type: 'articles/updateArticle/fulfilled',
-        payload: updatedArticle
+        payload: updatedArticle,
       });
-      
+
       const actions = store.getActions();
       expect(actions[0].type).toBe('articles/updateArticle/pending');
       expect(actions[1].type).toBe('articles/updateArticle/fulfilled');
@@ -144,13 +144,13 @@ describe('Article Actions', () => {
   describe('deleteArticle', () => {
     it('should create the correct action types when deleting an article', () => {
       const articleId = 'article-123';
-      
+
       store.dispatch({ type: 'articles/deleteArticle/pending' });
-      store.dispatch({ 
+      store.dispatch({
         type: 'articles/deleteArticle/fulfilled',
-        payload: articleId
+        payload: articleId,
       });
-      
+
       const actions = store.getActions();
       expect(actions[0].type).toBe('articles/deleteArticle/pending');
       expect(actions[1].type).toBe('articles/deleteArticle/fulfilled');

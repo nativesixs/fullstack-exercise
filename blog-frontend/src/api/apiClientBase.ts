@@ -9,31 +9,31 @@ export const createApiClient = (baseConfig: AxiosRequestConfig = {}): AxiosInsta
       'Content-Type': 'application/json',
     },
     timeout: 10000,
-    ...baseConfig
+    ...baseConfig,
   });
-  
+
   instance.interceptors.request.use(
     (config) => {
       const apiKey = getApiKey();
       const accessToken = getAccessToken();
-      
+
       if (apiKey) {
         config.headers = config.headers || {};
         config.headers['X-API-KEY'] = apiKey;
       }
-      
+
       if (accessToken) {
         config.headers = config.headers || {};
         config.headers['Authorization'] = accessToken;
       }
-      
+
       return config;
     },
     (error) => {
       return Promise.reject(error);
     }
   );
-  
+
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
       return response;
@@ -41,7 +41,7 @@ export const createApiClient = (baseConfig: AxiosRequestConfig = {}): AxiosInsta
     (error: AxiosError) => {
       if (error.response) {
         const status = error.response.status;
-        
+
         if (status === 401) {
           console.error('Authentication failed, please check your credentials or API key');
         } else if (status === 403) {
@@ -56,11 +56,11 @@ export const createApiClient = (baseConfig: AxiosRequestConfig = {}): AxiosInsta
       } else {
         console.error('Error setting up the request:', error.message);
       }
-      
+
       return Promise.reject(error);
     }
   );
-  
+
   return instance;
 };
 

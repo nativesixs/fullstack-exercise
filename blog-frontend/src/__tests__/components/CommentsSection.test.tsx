@@ -12,15 +12,15 @@ jest.mock('../../api/commentApi', () => ({
   postComment: jest.fn(),
   upvoteComment: jest.fn(),
   downvoteComment: jest.fn(),
-  getComments: jest.fn()
+  getComments: jest.fn(),
 }));
 
 jest.mock('../../hooks/useWebSocketComments', () => ({
   __esModule: true,
   default: (articleId, initialComments = []) => ({
     comments: initialComments,
-    addComment: jest.fn()
-  })
+    addComment: jest.fn(),
+  }),
 }));
 
 const mockComments: Comment[] = [
@@ -30,7 +30,7 @@ const mockComments: Comment[] = [
     author: 'John Doe',
     content: 'This is a test comment',
     postedAt: '2023-01-01T12:00:00Z',
-    score: 5
+    score: 5,
   },
   {
     commentId: '2',
@@ -38,8 +38,8 @@ const mockComments: Comment[] = [
     author: 'Jane Smith',
     content: 'Another test comment',
     postedAt: '2023-01-02T12:00:00Z',
-    score: 3
-  }
+    score: 3,
+  },
 ];
 
 const renderComponent = (
@@ -48,7 +48,7 @@ const renderComponent = (
   isAuthenticated = false
 ) => {
   const store = createMockStore({
-    auth: { isAuthenticated }
+    auth: { isAuthenticated },
   });
 
   return render(
@@ -71,7 +71,7 @@ describe('CommentsSection', () => {
       content: 'Test comment',
       author: 'Current User',
       postedAt: new Date().toISOString(),
-      score: 0
+      score: 0,
     });
   });
 
@@ -104,17 +104,17 @@ describe('CommentsSection', () => {
 
   it('calls postComment when form is submitted with content', async () => {
     renderComponent('test-article-id', [], true);
-    
+
     const commentInput = screen.getByPlaceholderText(/write a comment/i);
     const submitButton = screen.getByRole('button', { name: /post comment/i });
 
     fireEvent.change(commentInput, { target: { value: 'Test comment' } });
     fireEvent.click(submitButton);
-    
+
     await waitFor(() => {
       expect(postComment).toHaveBeenCalledWith({
         articleId: 'test-article-id',
-        content: 'Test comment'
+        content: 'Test comment',
       });
     });
 

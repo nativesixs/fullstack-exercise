@@ -17,10 +17,10 @@ interface DeleteArticleDialogProps {
   onConfirm: () => void;
 }
 
-const DeleteArticleDialog: React.FC<DeleteArticleDialogProps> = ({ 
-  isOpen, 
-  onClose, 
-  onConfirm 
+const DeleteArticleDialog: React.FC<DeleteArticleDialogProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -28,11 +28,9 @@ const DeleteArticleDialog: React.FC<DeleteArticleDialogProps> = ({
       <ModalContent>
         <ModalHeader>Delete Article</ModalHeader>
         <ModalCloseButton />
-        
+
         <ModalBody>
-          <Text>
-            Are you sure you want to delete this article? This action cannot be undone.
-          </Text>
+          <Text>Are you sure you want to delete this article? This action cannot be undone.</Text>
         </ModalBody>
 
         <ModalFooter>

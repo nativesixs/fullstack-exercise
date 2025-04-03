@@ -15,11 +15,11 @@ export interface AccessTokenResponse {
 
 export const login = async (credentials: LoginCredentials): Promise<AccessTokenResponse> => {
   const apiKey = getApiKey();
-  
+
   if (!apiKey) {
     throw new Error('API key is missing');
   }
-  
+
   try {
     const response = await apiClient.post<AccessTokenResponse>('/login', credentials);
     return response.data;

@@ -15,6 +15,6 @@ export const mockAsyncActions = (actionType: string) => {
   return {
     pending: createAction(`${actionType}/pending`),
     fulfilled: (payload: any) => createAction(`${actionType}/fulfilled`, payload),
-    rejected: (payload: any) => createAction(`${actionType}/rejected`, payload)
+    rejected: (payload: any) => createAction(`${actionType}/rejected`, payload),
   };
 };

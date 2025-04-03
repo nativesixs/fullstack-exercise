@@ -9,7 +9,7 @@ export const isRequired = (value: string, message = 'This field is required'): s
  * Validates minimum length
  */
 export const minLength = (value: string, min: number, message?: string): string | null => {
-  if (!value) return null; // Skip if empty (use isRequired for that)
+  if (!value) return null;
   return value.length >= min ? null : message || `Must be at least ${min} characters`;
 };
 
@@ -17,7 +17,7 @@ export const minLength = (value: string, min: number, message?: string): string 
  * Validates maximum length
  */
 export const maxLength = (value: string, max: number, message?: string): string | null => {
-  if (!value) return null; // Skip if empty
+  if (!value) return null;
   return value.length <= max ? null : message || `Must not exceed ${max} characters`;
 };
 
@@ -25,7 +25,7 @@ export const maxLength = (value: string, max: number, message?: string): string 
  * Validates email format
  */
 export const isEmail = (value: string, message = 'Invalid email format'): string | null => {
-  if (!value) return null; // Skip if empty
+  if (!value) return null;
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   return emailRegex.test(value) ? null : message;
 };
@@ -64,7 +64,7 @@ export const validateForm = <T extends Record<string, any>>(
 ): { isValid: boolean; errors: Partial<Record<keyof T, string>> } => {
   const errors: Partial<Record<keyof T, string>> = {};
   let isValid = true;
-  
+
   for (const field in schema) {
     const validator = schema[field];
     if (validator) {
@@ -75,6 +75,6 @@ export const validateForm = <T extends Record<string, any>>(
       }
     }
   }
-  
+
   return { isValid, errors };
 };

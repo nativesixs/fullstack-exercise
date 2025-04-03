@@ -32,26 +32,24 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
       <Heading as="h2" size="lg" mb={6}>
         Comments ({localComments.length})
       </Heading>
-      
+
       {!isAuthenticated && (
         <Alert status="warning" mb={6}>
           <AlertIcon />
           <AlertTitle>Authentication required!</AlertTitle>
           <AlertDescription>
-            You need to <Button as={RouterLink} to="/login" colorScheme="blue" size="sm" ml={2}>login</Button> 
+            You need to{' '}
+            <Button as={RouterLink} to="/login" colorScheme="blue" size="sm" ml={2}>
+              login
+            </Button>
             to post comments and vote.
           </AlertDescription>
         </Alert>
       )}
-      
-      {isAuthenticated && (
-        <CommentForm 
-          articleId={articleId} 
-          onCommentPosted={addComment} 
-        />
-      )}
-      
-      <CommentList 
+
+      {isAuthenticated && <CommentForm articleId={articleId} onCommentPosted={addComment} />}
+
+      <CommentList
         comments={localComments}
         userVotes={userVotes}
         isAuthenticated={isAuthenticated}

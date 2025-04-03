@@ -16,8 +16,8 @@ interface ApiImageProps {
   mb?: number;
 }
 
-const ApiImage: React.FC<ApiImageProps> = ({ 
-  imageId, 
+const ApiImage: React.FC<ApiImageProps> = ({
+  imageId,
   alt = 'Image',
   fallbackText = 'Image unavailable',
   minHeight = '200px',
@@ -31,35 +31,35 @@ const ApiImage: React.FC<ApiImageProps> = ({
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  
+
   useEffect(() => {
     if (!imageId) return;
-    
+
     const fetchImage = async () => {
       const apiKey = getApiKey();
       const accessToken = getAccessToken();
-      
+
       if (!apiKey) {
         console.error('API Key is missing');
         setError(true);
         return;
       }
-      
+
       setLoading(true);
       setError(false);
-      
+
       try {
         const response = await axios.get(
-          `https://fullstack.exercise.applifting.cz/images/${imageId}`, 
+          `https://fullstack.exercise.applifting.cz/images/${imageId}`,
           {
             responseType: 'blob',
             headers: {
               'X-API-KEY': apiKey,
-              ...(accessToken && { 'Authorization': accessToken })
-            }
+              ...(accessToken && { Authorization: accessToken }),
+            },
           }
         );
-        
+
         const blob = new Blob([response.data], { type: response.headers['content-type'] });
         const url = URL.createObjectURL(blob);
         setImageUrl(url);
@@ -70,7 +70,7 @@ const ApiImage: React.FC<ApiImageProps> = ({
         setLoading(false);
       }
     };
-    
+
     fetchImage();
 
     return () => {
@@ -79,17 +79,17 @@ const ApiImage: React.FC<ApiImageProps> = ({
       }
     };
   }, [imageId]);
-  
+
   if (loading) {
     return (
-      <Box 
-        bg="gray.50" 
-        width={width} 
+      <Box
+        bg="gray.50"
+        width={width}
         minHeight={minHeight}
         maxHeight={maxHeight}
         height={height}
-        display="flex" 
-        alignItems="center" 
+        display="flex"
+        alignItems="center"
         justifyContent="center"
         borderRadius={borderRadius}
         mb={mb}
@@ -98,17 +98,17 @@ const ApiImage: React.FC<ApiImageProps> = ({
       </Box>
     );
   }
-  
+
   if (!imageId || error || !imageUrl) {
     return (
-      <Box 
-        bg="gray.100" 
-        width={width} 
+      <Box
+        bg="gray.100"
+        width={width}
         minHeight={minHeight}
         maxHeight={maxHeight}
         height={height}
-        display="flex" 
-        alignItems="center" 
+        display="flex"
+        alignItems="center"
         justifyContent="center"
         borderRadius={borderRadius}
         mb={mb}
@@ -117,7 +117,7 @@ const ApiImage: React.FC<ApiImageProps> = ({
       </Box>
     );
   }
-  
+
   return (
     <Box
       width={width}

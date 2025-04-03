@@ -7,20 +7,18 @@ import { fetchArticleById } from '../../store/actions/articleActions';
 import createMockStore from '../../utils/testing/mockStore';
 
 jest.mock('../../store/actions/articleActions', () => ({
-  fetchArticleById: jest.fn()
+  fetchArticleById: jest.fn(),
 }));
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: () => ({ articleId: 'article-123' })
+  useParams: () => ({ articleId: 'article-123' }),
 }));
 
 jest.mock('../../components/CommentsSection', () => {
   return function MockCommentsSection(props: any) {
     return (
-      <div data-testid="mock-comments-section">
-        Comments section for article: {props.articleId}
-      </div>
+      <div data-testid="mock-comments-section">Comments section for article: {props.articleId}</div>
     );
   };
 });
@@ -40,8 +38,8 @@ jest.mock('react-markdown', () => {
 jest.mock('../../config', () => ({
   config: {
     USE_MOCKS: false,
-    API_URL: 'https://mocked-api.com'
-  }
+    API_URL: 'https://mocked-api.com',
+  },
 }));
 
 describe('ArticleDetail Page', () => {
@@ -50,7 +48,7 @@ describe('ArticleDetail Page', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     store = createMockStore({
       articles: {
         currentArticle: {
@@ -60,13 +58,13 @@ describe('ArticleDetail Page', () => {
           content: '# Test Content\n\nThis is the content of the test article.',
           imageId: 'image-123',
           createdAt: '2023-01-01T12:00:00Z',
-          lastUpdatedAt: '2023-01-01T12:00:00Z'
+          lastUpdatedAt: '2023-01-01T12:00:00Z',
         },
         loading: false,
-        error: null
-      }
+        error: null,
+      },
     });
-    
+
     mockFetchArticleById.mockReturnValue({ type: 'articles/fetchArticleById/fulfilled' } as any);
   });
 
@@ -84,7 +82,7 @@ describe('ArticleDetail Page', () => {
 
   it('fetches article data on mount', async () => {
     renderArticleDetail();
-    
+
     await waitFor(() => {
       expect(mockFetchArticleById).toHaveBeenCalledWith('article-123');
     });
@@ -92,10 +90,10 @@ describe('ArticleDetail Page', () => {
 
   it('renders article title, date, and content', () => {
     renderArticleDetail();
-    
+
     expect(screen.getByText('Test Article')).toBeInTheDocument();
     expect(screen.getByText(/January 1, 2023/i)).toBeInTheDocument();
-    
+
     const markdownElement = screen.getByTestId('mock-markdown');
     expect(markdownElement).toBeInTheDocument();
     expect(markdownElement.textContent).toContain('This is the content of the test article');
@@ -103,7 +101,7 @@ describe('ArticleDetail Page', () => {
 
   it('renders the comments section', () => {
     renderArticleDetail();
-    
+
     const commentsSection = screen.getByTestId('mock-comments-section');
     expect(commentsSection).toBeInTheDocument();
     expect(commentsSection).toHaveTextContent('Comments section for article: article-123');
@@ -114,12 +112,12 @@ describe('ArticleDetail Page', () => {
       articles: {
         currentArticle: null,
         loading: true,
-        error: null
-      }
+        error: null,
+      },
     });
-    
+
     renderArticleDetail();
-    
+
     expect(screen.getByText(/Loading article/i)).toBeInTheDocument();
   });
 
@@ -128,12 +126,12 @@ describe('ArticleDetail Page', () => {
       articles: {
         currentArticle: null,
         loading: false,
-        error: 'Failed to load article'
-      }
+        error: 'Failed to load article',
+      },
     });
-    
+
     renderArticleDetail();
-    
+
     expect(screen.getByText(/Failed to load article/i)).toBeInTheDocument();
   });
 
@@ -142,12 +140,12 @@ describe('ArticleDetail Page', () => {
       articles: {
         currentArticle: null,
         loading: false,
-        error: null
-      }
+        error: null,
+      },
     });
-    
+
     renderArticleDetail();
-    
+
     expect(screen.getByText(/Article not found/i)).toBeInTheDocument();
   });
 });

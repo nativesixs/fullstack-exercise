@@ -6,10 +6,7 @@ interface UploadDropzoneProps {
   onClick: () => void;
 }
 
-const UploadDropzone: React.FC<UploadDropzoneProps> = ({ 
-  isUploading, 
-  onClick 
-}) => {
+const UploadDropzone: React.FC<UploadDropzoneProps> = ({ isUploading, onClick }) => {
   return (
     <Flex
       border="2px dashed"

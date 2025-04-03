@@ -25,14 +25,6 @@ React-based frontend application for a blogging platform, allowing users to view
 - Node.js (v14 or higher)
 - npm (v6 or higher)
 
-
-### Configuration
-
-The application uses environment variables for configuration. Create a `.env` file in the root directory with the following variables:
-
-REACT_APP_API_URL=https://fullstack.exercise.applifting.cz
-REACT_APP_WS_URL=wss://fullstack.exercise.applifting.cz/ws
-
 ### Installation
 ```
 npm install
@@ -261,9 +253,26 @@ The application uses TypeScript for type safety:
 
 Code quality is maintained through:
 
+- ESLint
 - Consistent coding patterns
 - Component structure conventions
 
+```
+npm run lint       # to check for linting issues
+npm run lint:fix   # to automatically fix linting issues
+npm run format     # to format code with prettier
+```
+
+## Prettier Integration
+
+Code formatting is standardized using Prettier with the following configuration:
+
+- Single quotes
+- Semi-colons required
+- 100 character line length
+- 2 space indentation
+- ES5 trailing commas
+  
 ### Performance Optimization
 
 Performance optimizations include:

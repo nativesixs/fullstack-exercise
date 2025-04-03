@@ -4,27 +4,27 @@ const localStorageMock = {
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
-  clear: jest.fn()
+  clear: jest.fn(),
 };
 
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
-  writable: true
+  writable: true,
 });
 
 Object.defineProperty(URL, 'createObjectURL', {
   writable: true,
-  value: jest.fn(() => 'mock-blob-url')
+  value: jest.fn(() => 'mock-blob-url'),
 });
 
 Object.defineProperty(URL, 'revokeObjectURL', {
   writable: true,
-  value: jest.fn()
+  value: jest.fn(),
 });
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
-  UNSAFE_logV6DeprecationWarnings: jest.fn()
+  UNSAFE_logV6DeprecationWarnings: jest.fn(),
 }));
 
 class ResizeObserverMock {

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Comment } from '../types/comment';
-import websocketService from '../services/websocketService';
+import { createWebSocketConnection } from '../services/websocketService';
+import { config } from '../config';
 
 const useWebSocketComments = (articleId: string, initialComments: Comment[] = []) => {
   const [comments, setComments] = useState<Comment[]>(initialComments);
-
+  
   useEffect(() => {
     if (initialComments && initialComments.length > 0) {
       setComments(initialComments);
@@ -14,8 +15,8 @@ const useWebSocketComments = (articleId: string, initialComments: Comment[] = []
   useEffect(() => {
     const handleNewComment = (comment: Comment) => {
       if (comment.articleId === articleId) {
-        setComments(prevComments => {
-          if (prevComments.some(c => c.commentId === comment.commentId)) {
+        setComments((prevComments) => {
+          if (prevComments.some((c) => c.commentId === comment.commentId)) {
             return prevComments;
           }
           return [...prevComments, comment];
@@ -23,30 +24,23 @@ const useWebSocketComments = (articleId: string, initialComments: Comment[] = []
       }
     };
 
-    if (typeof websocketService.connect === 'function') {
-      try {
-        websocketService.connect();
-      } catch (error) {
-        console.error('Error connecting to WebSocket:', error);
-      }
-    }
-    
-    if (typeof websocketService.subscribeToComments === 'function') {
-      try {
-        websocketService.subscribeToComments(handleNewComment);
-      } catch (error) {
-        console.error('Error subscribing to comments:', error);
-      }
-    }
+    const wsUrl = config.API_URL.replace('http', 'ws');
+    const connection = createWebSocketConnection({
+      url: `${wsUrl}/articles/${articleId}/comments`,
+      onMessage: (data) => {
+        if (data && data.comment) {
+          handleNewComment(data.comment);
+        }
+      },
+      onOpen: () => console.log("WebSocket connected"),
+      onClose: () => console.log("WebSocket disconnected"),
+      onError: (error) => console.error("WebSocket error:", error)
+    });
+
+    connection.connect();
 
     return () => {
-      if (typeof websocketService.unsubscribeFromComments === 'function') {
-        try {
-          websocketService.unsubscribeFromComments(handleNewComment);
-        } catch (error) {
-          console.error('Error unsubscribing from comments:', error);
-        }
-      }
+      connection.disconnect();
     };
   }, [articleId]);
 

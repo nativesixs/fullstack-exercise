@@ -8,7 +8,7 @@ export const createSuccessToast = (title: string, description?: string): UseToas
   status: 'success',
   duration: TOAST_DURATION,
   isClosable: true,
-  position: 'top-right'
+  position: 'top-right',
 });
 
 export const createErrorToast = (title: string, description?: string): UseToastOptions => ({
@@ -17,7 +17,7 @@ export const createErrorToast = (title: string, description?: string): UseToastO
   status: 'error',
   duration: TOAST_DURATION,
   isClosable: true,
-  position: 'top-right'
+  position: 'top-right',
 });
 
 export const createWarningToast = (title: string, description?: string): UseToastOptions => ({
@@ -26,7 +26,7 @@ export const createWarningToast = (title: string, description?: string): UseToas
   status: 'warning',
   duration: TOAST_DURATION,
   isClosable: true,
-  position: 'top-right'
+  position: 'top-right',
 });
 
 export const createInfoToast = (title: string, description?: string): UseToastOptions => ({
@@ -35,5 +35,5 @@ export const createInfoToast = (title: string, description?: string): UseToastOp
   status: 'info',
   duration: TOAST_DURATION,
   isClosable: true,
-  position: 'top-right'
+  position: 'top-right',
 });

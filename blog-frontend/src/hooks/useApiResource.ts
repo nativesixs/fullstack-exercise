@@ -21,17 +21,17 @@ export function useApiResource<T, P = any>(
   const [params, setParams] = useState<P | undefined>(initialParams);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const execute = async (executeParams?: P): Promise<T | null> => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const paramsToUse = executeParams || params;
       if (!paramsToUse) {
         throw new Error('No parameters provided for API call');
       }
-      
+
       const result = await apiFn(paramsToUse);
       setData(result);
       return result;
@@ -43,20 +43,20 @@ export function useApiResource<T, P = any>(
       setIsLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (loadOnMount && params) {
       execute();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadOnMount, ...dependencies]);
-  
+
   return {
     data,
     isLoading,
     error,
     execute,
     setParams,
-    setData
+    setData,
   };
 }

@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Heading,
-  useToast,
-} from '@chakra-ui/react';
+import { Box, Heading, useToast } from '@chakra-ui/react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store/store';
 import { createArticle } from '../../store/actions/articleActions';
@@ -19,17 +15,17 @@ const NewArticle: React.FC = () => {
 
   const handleSubmit = async (formData: ArticleFormData & { imageId?: string }) => {
     setSubmitting(true);
-    
+
     try {
       await dispatch(createArticle(formData)).unwrap();
-      
+
       toast({
         title: 'Article created',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
-      
+
       navigate('/admin/articles');
     } catch (error) {
       toast({
@@ -46,8 +42,10 @@ const NewArticle: React.FC = () => {
 
   return (
     <Box>
-      <Heading as="h1" mb={6}>Create New Article</Heading>
-      
+      <Heading as="h1" mb={6}>
+        Create New Article
+      </Heading>
+
       <ArticleForm
         onSubmit={handleSubmit}
         isSubmitting={submitting}
