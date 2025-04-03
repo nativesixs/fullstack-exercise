@@ -6,6 +6,7 @@ import { RootState } from './store/store';
 import ArticleList from './pages/ArticleList';
 import ArticleDetail from './pages/ArticleDetail';
 import Login from './pages/Login';
+import About from './pages/About';
 
 import AdminArticleList from './pages/AdminArticleList';
 import AdminArticleDetail from './pages/AdminArticleDetail';
@@ -31,6 +32,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<ArticleList />} />
+      <Route path="/about" element={<About />} />
       <Route path="/articles/:articleId" element={<ArticleDetail />} />
       <Route path="/login" element={<Login />} />
 

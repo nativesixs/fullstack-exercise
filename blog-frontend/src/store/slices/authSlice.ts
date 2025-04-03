@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { login, logout } from '../actions/authActions';
 import { AuthState } from '../../types/state';
 import { createAsyncHandlers } from '../../utils/reduxHelpers';
-import { isAuthenticated as checkStoredAuth } from '../../utils/tokenStorage';
+import { isTokenExpired, getAccessToken } from '../../utils/tokenStorage';
 
 const initialState: AuthState = {
   isAuthenticated: false,
@@ -21,7 +21,9 @@ const authSlice = createSlice({
       state.error = null;
     },
     checkAuthentication: (state) => {
-      state.isAuthenticated = checkStoredAuth();
+      // Use the available functions to check if the user is authenticated
+      const token = getAccessToken();
+      state.isAuthenticated = !!token && !isTokenExpired();
     },
   },
   extraReducers: (builder) => {
@@ -35,7 +37,10 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = null;
       })
-      .addCase(login.rejected, loginHandlers.rejected);
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Authentication failed';
+      });
 
     builder
       .addCase(logout.pending, logoutHandlers.pending)

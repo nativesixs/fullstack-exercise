@@ -19,7 +19,7 @@ import useWebSocketComments from '../../hooks/useWebSocketComments';
 
 interface CommentsSectionProps {
   articleId: string;
-  comments: Comment[];
+  comments?: Comment[];
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments = [] }) => {
@@ -28,32 +28,45 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments =
   const { comments: localComments, addComment } = useWebSocketComments(articleId, comments);
 
   return (
-    <Box mb={10} data-testid="comments-section">
+    <Box as="section" pt={10}>
       <Heading as="h2" size="lg" mb={6}>
-        Comments ({localComments.length})
+        Comments
       </Heading>
 
       {!isAuthenticated && (
-        <Alert status="warning" mb={6}>
+        <Alert status="info" mb={6} borderRadius="md">
           <AlertIcon />
-          <AlertTitle>Authentication required!</AlertTitle>
-          <AlertDescription>
-            You need to{' '}
-            <Button as={RouterLink} to="/login" colorScheme="blue" size="sm" ml={2}>
-              login
-            </Button>
-            to post comments and vote.
-          </AlertDescription>
+          <Box>
+            <AlertTitle>Want to join the conversation?</AlertTitle>
+            <AlertDescription>
+              Please{' '}
+              <Button
+                as={RouterLink}
+                to="/login"
+                variant="link"
+                colorScheme="blue"
+                fontWeight="semibold"
+              >
+                log in
+              </Button>{' '}
+              to post comments.
+            </AlertDescription>
+          </Box>
         </Alert>
       )}
 
-      {isAuthenticated && <CommentForm articleId={articleId} onCommentPosted={addComment} />}
+      {isAuthenticated && (
+        <CommentForm 
+          articleId={articleId} 
+          onCommentPosted={addComment} 
+        />
+      )}
 
       <CommentList
         comments={localComments}
         userVotes={userVotes}
-        isAuthenticated={isAuthenticated}
         onVote={handleVote}
+        isAuthenticated={isAuthenticated}
       />
     </Box>
   );

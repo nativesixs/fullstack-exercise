@@ -30,15 +30,20 @@ const CommentItem: React.FC<CommentItemProps> = ({
       <Text mb={4}>{comment.content}</Text>
 
       <HStack>
-        <Text fontSize="sm" fontWeight="medium" mr={2}>
-          Score: {comment.score}
+      <Text fontWeight="bold" fontSize="md" color={
+          userVote === 1 ? "green.500" :
+          userVote === -1 ? "red.500" :
+          "gray.700"
+        }>
+          {comment.score}
         </Text>
-
         <IconButton
           aria-label="Upvote"
-          icon={<ChevronUpIcon />}
-          size="xs"
-          colorScheme={userVote === 1 ? 'green' : 'gray'}
+          icon={<ChevronUpIcon boxSize={6} />} 
+          size="sm"
+          variant="ghost"
+          color={userVote === 1 ? "green.500" : "gray.500"}
+          _hover={{ bg: "transparent", color: userVote === 1 ? "green.600" : "gray.600" }}
           onClick={() => onVote(comment.commentId, 'up')}
           isDisabled={!isAuthenticated}
           borderRadius="full"
@@ -46,9 +51,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
         <IconButton
           aria-label="Downvote"
-          icon={<ChevronDownIcon />}
-          size="xs"
-          colorScheme={userVote === -1 ? 'red' : 'gray'}
+          icon={<ChevronDownIcon boxSize={6} />}
+          size="sm"
+          variant="ghost"
+          color={userVote === -1 ? "red.500" : "gray.500"}
+          _hover={{ bg: "transparent", color: userVote === -1 ? "red.600" : "gray.600" }}
           onClick={() => onVote(comment.commentId, 'down')}
           isDisabled={!isAuthenticated}
           borderRadius="full"

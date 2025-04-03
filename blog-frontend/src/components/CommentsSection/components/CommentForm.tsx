@@ -10,6 +10,7 @@ import {
   AlertDescription,
 } from '@chakra-ui/react';
 import { postComment } from '../../../api/commentApi';
+import { config } from '../../../config';
 
 interface CommentFormProps {
   articleId: string;
@@ -40,9 +41,12 @@ const CommentForm: React.FC<CommentFormProps> = ({ articleId, onCommentPosted })
     setSubmitting(true);
 
     try {
+      console.log(`Posting comment (mock mode: ${config.USE_MOCKS ? 'enabled' : 'disabled'})`);
+      
       const newComment = await postComment({
         articleId,
         content,
+        author: 'Admin'
       });
 
       setContent('');

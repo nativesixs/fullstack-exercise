@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   FormControl,
@@ -21,7 +21,7 @@ interface ArticleFormProps {
     content: string;
     imageId?: string;
   };
-  onSubmit: (formData: ArticleFormData & { imageId?: string }) => Promise<void>;
+  onSubmit: (data: ArticleFormData & { imageId?: string }) => Promise<void>;
   isSubmitting: boolean;
   submitButtonText: string;
 }
@@ -32,10 +32,15 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
   isSubmitting,
   submitButtonText,
 }) => {
-  const [title, setTitle] = useState(initialData.title);
-  const [perex, setPerex] = useState(initialData.perex);
-  const [content, setContent] = useState(initialData.content);
-  const [imageId, setImageId] = useState<string | undefined>(initialData.imageId);
+  const isInitialMount = useRef(true);
+  
+  const [formData, setFormData] = useState({
+    title: initialData.title || '',
+    perex: initialData.perex || '',
+    content: initialData.content || '',
+    imageId: initialData.imageId,
+  });
+  
   const [errors, setErrors] = useState({
     title: '',
     perex: '',
@@ -43,14 +48,33 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
   });
 
   useEffect(() => {
-    setTitle(initialData.title);
-    setPerex(initialData.perex);
-    setContent(initialData.content);
-    setImageId(initialData.imageId);
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const hasRealInitialData = 
+      initialData.title?.trim() || 
+      initialData.perex?.trim() || 
+      initialData.content?.trim() ||
+      initialData.imageId;
+      
+    if (hasRealInitialData) {
+      setFormData({
+        title: initialData.title || '',
+        perex: initialData.perex || '',
+        content: initialData.content || '',
+        imageId: initialData.imageId,
+      });
+    }
   }, [initialData]);
 
   const validateForm = () => {
-    const { isValid, errors } = validateArticleForm({ title, perex, content });
+    const { isValid, errors } = validateArticleForm({ 
+      title: formData.title, 
+      perex: formData.perex, 
+      content: formData.content 
+    });
     setErrors(errors);
     return isValid;
   };
@@ -63,19 +87,32 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
     }
 
     await onSubmit({
-      title,
-      perex,
-      content,
-      imageId,
+      title: formData.title,
+      perex: formData.perex,
+      content: formData.content,
+      imageId: formData.imageId,
     });
   };
 
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleImageUploaded = (newImageId: string) => {
-    setImageId(newImageId);
+    setFormData(prev => ({
+      ...prev,
+      imageId: newImageId
+    }));
   };
 
   const handleImageRemoved = () => {
-    setImageId(undefined);
+    setFormData(prev => ({
+      ...prev,
+      imageId: undefined
+    }));
   };
 
   const editorOptions = React.useMemo(() => {
@@ -91,15 +128,19 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       <VStack spacing={6} align="start">
         <FormControl isInvalid={!!errors.title} isRequired>
           <FormLabel>Article Title</FormLabel>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
+          <Input 
+            value={formData.title} 
+            onChange={(e) => handleChange('title', e.target.value)} 
+            placeholder="Title" 
+          />
           <FormErrorMessage>{errors.title}</FormErrorMessage>
         </FormControl>
 
         <FormControl isInvalid={!!errors.perex} isRequired>
           <FormLabel>Perex</FormLabel>
           <Textarea
-            value={perex}
-            onChange={(e) => setPerex(e.target.value)}
+            value={formData.perex}
+            onChange={(e) => handleChange('perex', e.target.value)}
             placeholder="Short summary of the article"
             rows={3}
           />
@@ -113,13 +154,17 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
             borderColor={errors.content ? 'red.500' : 'gray.200'}
             borderRadius="md"
           >
-            <SimpleMDE value={content} onChange={setContent} options={editorOptions} />
+            <SimpleMDE 
+              value={formData.content} 
+              onChange={(value) => handleChange('content', value)} 
+              options={editorOptions} 
+            />
           </Box>
           <FormErrorMessage>{errors.content}</FormErrorMessage>
         </FormControl>
 
         <ImageUploader
-          initialImageId={imageId}
+          initialImageId={formData.imageId}
           onImageUploaded={handleImageUploaded}
           onImageRemoved={handleImageRemoved}
         />

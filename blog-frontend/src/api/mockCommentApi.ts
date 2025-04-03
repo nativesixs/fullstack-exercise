@@ -1,16 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Comment } from '../types/comment';
+import { Comment, CommentCreateData } from '../types/comment';
 
-interface CommentData {
-  articleId: string;
-  author: string;
-  content: string;
-}
+const STORAGE_KEY = 'mockComments';
 
 const mockComments: Record<string, Comment[]> = {};
 
 try {
-  const savedComments = localStorage.getItem('mockComments');
+  const savedComments = localStorage.getItem(STORAGE_KEY);
   if (savedComments) {
     Object.assign(mockComments, JSON.parse(savedComments));
     console.log('Loaded mock comments from localStorage:', mockComments);
@@ -19,22 +15,28 @@ try {
   console.error('Error loading mock comments from localStorage:', e);
 }
 
+// Save comments to localStorage
 const saveCommentsToLocalStorage = () => {
   try {
-    localStorage.setItem('mockComments', JSON.stringify(mockComments));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockComments));
+    console.log('Saved mock comments to localStorage');
   } catch (e) {
     console.error('Error saving mock comments to localStorage:', e);
   }
 };
 
-export const postComment = async (commentData: CommentData): Promise<Comment> => {
+// Simulate API delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export const postComment = async (commentData: CommentCreateData): Promise<Comment> => {
   try {
     console.log('Using MOCK: Posting comment with data:', commentData);
 
+    // Create a new comment
     const newComment: Comment = {
       commentId: uuidv4(),
       articleId: commentData.articleId,
-      author: commentData.author,
+      author: commentData.author || 'Anonymous User',
       content: commentData.content,
       postedAt: new Date().toISOString(),
       score: 0,
@@ -43,12 +45,14 @@ export const postComment = async (commentData: CommentData): Promise<Comment> =>
     if (!mockComments[commentData.articleId]) {
       mockComments[commentData.articleId] = [];
     }
-    mockComments[commentData.articleId].unshift(newComment);
 
+    mockComments[commentData.articleId].unshift(newComment);
     saveCommentsToLocalStorage();
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Simulate API delay
+    await delay(500);
 
+    // Simulate WebSocket event
     window.dispatchEvent(
       new CustomEvent('mockWsMessage', {
         detail: {
@@ -73,7 +77,7 @@ export const upvoteComment = async (commentId: string): Promise<Comment> => {
     let updatedComment: Comment | null = null;
 
     for (const articleId in mockComments) {
-      const commentIndex = mockComments[articleId].findIndex((c) => c.commentId === commentId);
+      const commentIndex = mockComments[articleId].findIndex(c => c.commentId === commentId);
       if (commentIndex >= 0) {
         mockComments[articleId][commentIndex].score += 1;
         updatedComment = mockComments[articleId][commentIndex];
@@ -87,7 +91,7 @@ export const upvoteComment = async (commentId: string): Promise<Comment> => {
 
     saveCommentsToLocalStorage();
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
 
     window.dispatchEvent(
       new CustomEvent('mockWsMessage', {
@@ -113,7 +117,7 @@ export const downvoteComment = async (commentId: string): Promise<Comment> => {
     let updatedComment: Comment | null = null;
 
     for (const articleId in mockComments) {
-      const commentIndex = mockComments[articleId].findIndex((c) => c.commentId === commentId);
+      const commentIndex = mockComments[articleId].findIndex(c => c.commentId === commentId);
       if (commentIndex >= 0) {
         mockComments[articleId][commentIndex].score -= 1;
         updatedComment = mockComments[articleId][commentIndex];
@@ -127,7 +131,7 @@ export const downvoteComment = async (commentId: string): Promise<Comment> => {
 
     saveCommentsToLocalStorage();
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
 
     window.dispatchEvent(
       new CustomEvent('mockWsMessage', {
@@ -146,6 +150,10 @@ export const downvoteComment = async (commentId: string): Promise<Comment> => {
   }
 };
 
-export const getCommentsForArticle = (articleId: string): Comment[] => {
+export const getCommentsForArticle = async (articleId: string): Promise<Comment[]> => {
+  console.log('Using MOCK: Getting comments for article:', articleId);
+  
+  await delay(300);
+  
   return mockComments[articleId] || [];
 };
