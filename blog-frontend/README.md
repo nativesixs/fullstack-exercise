@@ -42,6 +42,16 @@ npm start
 npm run build
 ```
 
+### Docker Setup
+The application can be containerized using Docker for easier deployment and consistent environments.
+
+## Building and Running with Docker
+Using Docker Directly
+```
+docker compose up
+docker compose down
+```
+
 - **Running Tests**
 ```
 npm test                  # Run all tests
