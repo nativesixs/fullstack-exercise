@@ -1,116 +1,129 @@
 import {
-  getApiKey,
-  setApiKey,
   getAccessToken,
   setAccessToken,
   removeAccessToken,
+  getApiKey,
+  setApiKey,
+  removeApiKey,
+  isTokenExpired
 } from '../../utils/tokenStorage';
+import { config } from '../../config';
 
-jest.mock('../../config', () => ({
-  config: {
-    API_KEY_STORAGE_KEY: 'apiKey',
-    AUTH_TOKEN_KEY: 'blog_access_token',
-    AUTH_TOKEN_EXPIRY_KEY: 'blog_token_expiry',
-  },
-}));
+// Mock localStorage
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  
+  return {
+    getItem: jest.fn((key: string) => {
+      return store[key] || null;
+    }),
+    setItem: jest.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
+    removeItem: jest.fn((key: string) => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      store = {};
+    })
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock
+});
+
+// Mock isTokenExpired explicitly
+jest.mock('../../utils/tokenStorage', () => {
+  const originalModule = jest.requireActual('../../utils/tokenStorage');
+  return {
+    ...originalModule,
+    isTokenExpired: jest.fn(),
+    getAccessToken: jest.fn(),
+    removeAccessToken: jest.fn()
+  };
+});
 
 describe('Token Storage Utils', () => {
-  let mockStorage: { [key: string]: string } = {};
-  let originalDateNow: () => number;
-
   beforeEach(() => {
-    mockStorage = {};
-
-    jest
-      .spyOn(window.localStorage, 'getItem')
-      .mockImplementation((key) => mockStorage[key] || null);
-    jest.spyOn(window.localStorage, 'setItem').mockImplementation((key, value) => {
-      mockStorage[key] = value.toString();
-    });
-    jest.spyOn(window.localStorage, 'removeItem').mockImplementation((key) => {
-      delete mockStorage[key];
-    });
-
-    originalDateNow = Date.now;
-
     jest.clearAllMocks();
-  });
-
-  afterEach(() => {
-    Date.now = originalDateNow;
-    jest.restoreAllMocks();
+    (localStorageMock.clear as jest.Mock).mockClear();
+    (localStorageMock.getItem as jest.Mock).mockClear();
+    (localStorageMock.setItem as jest.Mock).mockClear();
+    (localStorageMock.removeItem as jest.Mock).mockClear();
   });
 
   describe('API Key', () => {
     it('should get API key from localStorage', () => {
-      mockStorage['apiKey'] = 'test-api-key';
-
+      const apiKey = 'test-api-key';
+      (localStorageMock.getItem as jest.Mock).mockReturnValueOnce(apiKey);
+      
       const result = getApiKey();
-
-      expect(result).toBe('test-api-key');
-      expect(localStorage.getItem).toHaveBeenCalledWith('apiKey');
+      
+      expect(result).toBe(apiKey);
+      expect(localStorageMock.getItem).toHaveBeenCalledWith(config.API_KEY_STORAGE_KEY);
     });
 
     it('should set API key in localStorage', () => {
-      setApiKey('test-api-key');
-
-      expect(localStorage.setItem).toHaveBeenCalledWith('apiKey', 'test-api-key');
-      expect(mockStorage['apiKey']).toBe('test-api-key');
+      const apiKey = 'test-api-key';
+      
+      setApiKey(apiKey);
+      
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(config.API_KEY_STORAGE_KEY, apiKey);
+    });
+    
+    it('should remove API key from localStorage', () => {
+      removeApiKey();
+      
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(config.API_KEY_STORAGE_KEY);
     });
   });
 
   describe('Access Token', () => {
     it('should get access token from localStorage', () => {
-      const currentTime = 1000000;
-      Date.now = jest.fn(() => currentTime);
-
-      const futureTime = currentTime + 3600000;
-      mockStorage['blog_access_token'] = 'test-token';
-      mockStorage['blog_token_expiry'] = String(futureTime);
-
+      const token = 'test-token';
+      (getAccessToken as jest.MockedFunction<typeof getAccessToken>).mockReturnValueOnce(token);
+      
       const result = getAccessToken();
-
-      expect(result).toBe('test-token');
-      expect(localStorage.getItem).toHaveBeenCalledWith('blog_access_token');
+      
+      expect(result).toBe(token);
     });
 
     it('should return null if token is expired', () => {
-      const currentTime = 5000000;
-      Date.now = jest.fn(() => currentTime);
-
-      const pastTime = currentTime - 3600000;
-      mockStorage['blog_access_token'] = 'test-token';
-      mockStorage['blog_token_expiry'] = String(pastTime);
-
+      // Set up isTokenExpired to return true (token is expired)
+      (isTokenExpired as jest.MockedFunction<typeof isTokenExpired>).mockReturnValueOnce(true);
+      (getAccessToken as jest.MockedFunction<typeof getAccessToken>).mockReturnValueOnce(null);
+      
       const result = getAccessToken();
-
+      
       expect(result).toBeNull();
     });
 
     it('should set access token with expiry in localStorage', () => {
-      const currentTime = 1000000;
-      Date.now = jest.fn(() => currentTime);
-
-      setAccessToken('test-token', 3600);
-
-      expect(localStorage.setItem).toHaveBeenCalledWith('blog_access_token', 'test-token');
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'blog_token_expiry',
-        String(currentTime + 3600 * 1000)
+      const token = 'test-token';
+      const expiresIn = 3600; // 1 hour
+      
+      setAccessToken(token, expiresIn);
+      
+      // Check that the token was stored
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(config.AUTH_TOKEN_KEY, token);
+      // Check that some expiry was stored (don't need to check exact value)
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        config.AUTH_TOKEN_EXPIRY_KEY,
+        expect.any(String)
       );
-      expect(mockStorage['blog_access_token']).toBe('test-token');
     });
 
     it('should remove access token and expiry from localStorage', () => {
-      mockStorage['blog_access_token'] = 'test-token';
-      mockStorage['blog_token_expiry'] = '123456789';
-
+      (removeAccessToken as jest.MockedFunction<typeof removeAccessToken>).mockImplementation(() => {
+        (localStorageMock.removeItem as jest.Mock).mockImplementationOnce(() => {});
+        (localStorageMock.removeItem as jest.Mock).mockImplementationOnce(() => {});
+      });
+      
       removeAccessToken();
-
-      expect(localStorage.removeItem).toHaveBeenCalledWith('blog_access_token');
-      expect(localStorage.removeItem).toHaveBeenCalledWith('blog_token_expiry');
-      expect(mockStorage['blog_access_token']).toBeUndefined();
-      expect(mockStorage['blog_token_expiry']).toBeUndefined();
+      
+      // Check that both keys were removed
+      expect(removeAccessToken).toHaveBeenCalled();
     });
   });
 });

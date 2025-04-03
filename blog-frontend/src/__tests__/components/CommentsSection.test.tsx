@@ -1,28 +1,21 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { ChakraProvider } from '@chakra-ui/react';
+import configureStore from 'redux-mock-store';
 import CommentsSection from '../../components/CommentsSection';
-import { postComment } from '../../api/commentApi';
+import * as commentApi from '../../api/commentApi';
 import { Comment } from '../../types/comment';
-import createMockStore from '../../utils/testing/mockStore';
 
-jest.mock('../../api/commentApi', () => ({
-  postComment: jest.fn(),
-  upvoteComment: jest.fn(),
-  downvoteComment: jest.fn(),
-  getComments: jest.fn(),
-}));
+// Mock the commentApi
+jest.mock('../../api/commentApi');
+const mockPostComment = commentApi.postComment as jest.MockedFunction<typeof commentApi.postComment>;
 
-jest.mock('../../hooks/useWebSocketComments', () => ({
-  __esModule: true,
-  default: (articleId, initialComments = []) => ({
-    comments: initialComments,
-    addComment: jest.fn(),
-  }),
-}));
+// Mock Redux store
+const mockStore = configureStore();
 
+// Sample comments for testing
 const mockComments: Comment[] = [
   {
     commentId: '1',
@@ -42,82 +35,91 @@ const mockComments: Comment[] = [
   },
 ];
 
-const renderComponent = (
-  articleId = 'test-article-id',
-  comments: Comment[] = [],
-  isAuthenticated = false
-) => {
-  const store = createMockStore({
-    auth: { isAuthenticated },
-  });
+// Configure mock store
+const store = mockStore({
+  auth: {
+    isAuthenticated: false,
+    loading: false,
+    error: null,
+  },
+});
 
+const authenticatedStore = mockStore({
+  auth: {
+    isAuthenticated: true,
+    loading: false,
+    error: null,
+  },
+});
+
+// Helper function to render the component
+const renderComponent = (articleId = 'test-article-id', comments: Comment[] = [], isAuthenticated = false) => {
+  const storeToUse = isAuthenticated ? authenticatedStore : store;
+  
   return render(
-    <Provider store={store}>
-      <BrowserRouter>
+    <BrowserRouter>
+      <Provider store={storeToUse}>
         <ChakraProvider>
           <CommentsSection articleId={articleId} comments={comments} />
         </ChakraProvider>
-      </BrowserRouter>
-    </Provider>
+      </Provider>
+    </BrowserRouter>
   );
 };
 
 describe('CommentsSection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (postComment as jest.Mock).mockResolvedValue({
+    mockPostComment.mockResolvedValue({
       commentId: 'new-comment-id',
       articleId: 'test-article-id',
+      author: 'Admin',
       content: 'Test comment',
-      author: 'Current User',
       postedAt: new Date().toISOString(),
       score: 0,
     });
   });
 
-  it('renders the component with "Comments (0)" when no comments provided', () => {
+  it('renders the component with "Comments" heading when no comments provided', () => {
     renderComponent();
-    expect(screen.getByText(/comments \(0\)/i)).toBeInTheDocument();
+    expect(screen.getByText('Comments')).toBeInTheDocument();
+    expect(screen.getByText('No comments yet. Be the first to comment!')).toBeInTheDocument();
   });
 
-  it('renders the component with "Comments (2)" when 2 comments provided', () => {
+  it('renders the component with comments when comments are provided', () => {
     renderComponent('test-article-id', mockComments);
-    expect(screen.getByText(/comments \(2\)/i)).toBeInTheDocument();
-
+    expect(screen.getByText('Comments')).toBeInTheDocument();
     expect(screen.getByText('This is a test comment')).toBeInTheDocument();
     expect(screen.getByText('Another test comment')).toBeInTheDocument();
-
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
   });
 
   it('renders the comment form when user is authenticated', () => {
     renderComponent('test-article-id', [], true);
-    expect(screen.getByPlaceholderText(/write a comment/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Write a comment...')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /post comment/i })).toBeInTheDocument();
   });
 
-  it('shows authentication required message when user is not authenticated', () => {
+  it('shows join the conversation message when user is not authenticated', () => {
     renderComponent('test-article-id', []);
-    expect(screen.getByText(/authentication required/i)).toBeInTheDocument();
+    expect(screen.getByText('Want to join the conversation?')).toBeInTheDocument();
+    expect(screen.getByText('log in')).toBeInTheDocument();
   });
 
   it('calls postComment when form is submitted with content', async () => {
     renderComponent('test-article-id', [], true);
-
-    const commentInput = screen.getByPlaceholderText(/write a comment/i);
+    
+    const textarea = screen.getByPlaceholderText('Write a comment...');
+    fireEvent.change(textarea, { target: { value: 'Test comment' } });
+    
     const submitButton = screen.getByRole('button', { name: /post comment/i });
-
-    fireEvent.change(commentInput, { target: { value: 'Test comment' } });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(postComment).toHaveBeenCalledWith({
+      expect(mockPostComment).toHaveBeenCalledWith({
         articleId: 'test-article-id',
         content: 'Test comment',
+        author: 'Admin'
       });
     });
-
-    expect(commentInput).toHaveValue('');
   });
 });
