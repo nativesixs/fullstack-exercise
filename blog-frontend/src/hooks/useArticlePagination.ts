@@ -31,29 +31,22 @@ export function useArticlePagination(
   const [sortField, setSortField] = useState<SortField>(initialState.sortField || 'createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>(initialState.sortDirection || 'desc');
 
-  // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Handle sort change
   const handleSortChange = (field: SortField) => {
     if (field === sortField) {
-      // Toggle direction if same field
       setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
     } else {
-      // Set new field with default direction
       setSortField(field);
       setSortDirection('desc');
     }
-    // Reset to first page when sorting changes
     setCurrentPage(1);
   };
 
-  // Sort and paginate articles
   const { sortedArticles, paginatedArticles, totalPages } = useMemo(() => {
-    // Sort articles
     const sorted = [...articles].sort((a, b) => {
       let comparison = 0;
       
@@ -65,7 +58,6 @@ export function useArticlePagination(
           comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
           break;
         case 'comments':
-          // Handle optional comments field
           const aCount = 'comments' in a ? (a as any).comments?.length || 0 : 0;
           const bCount = 'comments' in b ? (b as any).comments?.length || 0 : 0;
           comparison = aCount - bCount;
@@ -77,7 +69,6 @@ export function useArticlePagination(
       return sortDirection === 'asc' ? comparison : -comparison;
     });
     
-    // Calculate pagination
     const totalPages = Math.ceil(sorted.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginated = sorted.slice(startIndex, startIndex + itemsPerPage);

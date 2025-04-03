@@ -22,9 +22,6 @@ interface CommentsSectionProps {
   comments: Comment[];
 }
 
-/**
- * Comments section component
- */
 const CommentsSection: React.FC<CommentsSectionProps> = ({ articleId, comments = [] }) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { userVotes, handleVote } = useCommentVoting(isAuthenticated);

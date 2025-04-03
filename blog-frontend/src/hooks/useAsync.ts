@@ -12,9 +12,6 @@ interface UseAsyncReturn<T, P extends any[]> extends UseAsyncState<T> {
   reset: () => void;
 }
 
-/**
- * Hook to handle async operations with loading and error states
- */
 export function useAsync<T, P extends any[] = any[]>(
   asyncFunction: (...params: P) => Promise<T>
 ): UseAsyncReturn<T, P> {

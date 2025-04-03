@@ -24,7 +24,6 @@ export function useForm<T extends Record<string, any>>(
       [name]: value
     }));
     
-    // Clear error when field is edited
     if (errors[name as keyof T]) {
       setErrors(prev => ({
         ...prev,
@@ -42,7 +41,6 @@ export function useForm<T extends Record<string, any>>(
       [name]: true
     }));
     
-    // Validate single field on blur
     const fieldErrors = validate({
       ...values
     });

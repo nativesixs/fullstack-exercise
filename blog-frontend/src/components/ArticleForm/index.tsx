@@ -42,7 +42,6 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
     content: '',
   });
 
-  // Update form when initialData changes
   useEffect(() => {
     setTitle(initialData.title);
     setPerex(initialData.perex);

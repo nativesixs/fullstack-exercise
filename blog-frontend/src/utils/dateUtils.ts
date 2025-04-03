@@ -1,8 +1,5 @@
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 
-/**
- * Format a date string for display
- */
 export const formatDate = (dateString: string): string => {
   try {
     const date = parseISO(dateString);
@@ -13,9 +10,6 @@ export const formatDate = (dateString: string): string => {
   }
 };
 
-/**
- * Format a date as relative time (e.g. "2 days ago")
- */
 export const formatRelativeTime = (dateString: string): string => {
   try {
     const date = parseISO(dateString);

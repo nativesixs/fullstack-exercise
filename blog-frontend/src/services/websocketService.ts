@@ -9,16 +9,13 @@ class WebSocketService {
   private reconnectInterval: NodeJS.Timeout | null = null;
   private isConnecting: boolean = false;
 
-  /**
-   * Connect to the WebSocket server
-   */
   connect = () => {
     if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
-      return; // Already connected or connecting
+      return;
     }
 
     if (this.isConnecting) {
-      return; // Already attempting to connect
+      return;
     }
 
     this.isConnecting = true;
@@ -31,14 +28,12 @@ class WebSocketService {
         return;
       }
 
-      // Use the API_URL but replace http with ws for the WebSocket connection
       const wsUrl = config.API_URL.replace(/^http/, 'ws');
       this.ws = new WebSocket(`${wsUrl}/ws?apiKey=${apiKey}`);
 
       this.ws.onopen = () => {
         console.log('WebSocket connection established');
         this.isConnecting = false;
-        // Clear any reconnect interval
         if (this.reconnectInterval) {
           clearInterval(this.reconnectInterval);
           this.reconnectInterval = null;
@@ -62,11 +57,10 @@ class WebSocketService {
       this.ws.onclose = () => {
         console.log('WebSocket connection closed');
         this.isConnecting = false;
-        // Attempt to reconnect
         if (!this.reconnectInterval) {
           this.reconnectInterval = setInterval(() => {
             this.connect();
-          }, 5000); // Try to reconnect every 5 seconds
+          }, 5000);
         }
       };
     } catch (error) {
@@ -75,9 +69,6 @@ class WebSocketService {
     }
   };
 
-  /**
-   * Disconnect from the WebSocket server
-   */
   disconnect = () => {
     if (this.reconnectInterval) {
       clearInterval(this.reconnectInterval);
@@ -92,25 +83,16 @@ class WebSocketService {
     this.isConnecting = false;
   };
 
-  /**
-   * Subscribe to comment updates
-   */
   subscribeToComments = (callback: CommentCallback) => {
     if (!this.subscribers.includes(callback)) {
       this.subscribers.push(callback);
     }
   };
 
-  /**
-   * Unsubscribe from comment updates
-   */
   unsubscribeFromComments = (callback: CommentCallback) => {
     this.subscribers = this.subscribers.filter(cb => cb !== callback);
   };
 
-  /**
-   * Notify all subscribers about a new comment
-   */
   private notifySubscribers = (comment: Comment) => {
     this.subscribers.forEach(callback => {
       try {
@@ -121,9 +103,6 @@ class WebSocketService {
     });
   };
 
-  /**
-   * Send a message through the WebSocket
-   */
   send = (data: any) => {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(data));

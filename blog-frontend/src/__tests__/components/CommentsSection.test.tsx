@@ -8,7 +8,6 @@ import { postComment } from '../../api/commentApi';
 import { Comment } from '../../types/comment';
 import createMockStore from '../../utils/testing/mockStore';
 
-// Mock the API calls
 jest.mock('../../api/commentApi', () => ({
   postComment: jest.fn(),
   upvoteComment: jest.fn(),
@@ -16,7 +15,6 @@ jest.mock('../../api/commentApi', () => ({
   getComments: jest.fn()
 }));
 
-// Mock the websocket hook
 jest.mock('../../hooks/useWebSocketComments', () => ({
   __esModule: true,
   default: (articleId, initialComments = []) => ({
@@ -85,12 +83,10 @@ describe('CommentsSection', () => {
   it('renders the component with "Comments (2)" when 2 comments provided', () => {
     renderComponent('test-article-id', mockComments);
     expect(screen.getByText(/comments \(2\)/i)).toBeInTheDocument();
-    
-    // Check if comment content is displayed
+
     expect(screen.getByText('This is a test comment')).toBeInTheDocument();
     expect(screen.getByText('Another test comment')).toBeInTheDocument();
-    
-    // Check if author names are displayed
+
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
   });
@@ -111,8 +107,7 @@ describe('CommentsSection', () => {
     
     const commentInput = screen.getByPlaceholderText(/write a comment/i);
     const submitButton = screen.getByRole('button', { name: /post comment/i });
-    
-    // Type comment and submit
+
     fireEvent.change(commentInput, { target: { value: 'Test comment' } });
     fireEvent.click(submitButton);
     
@@ -122,8 +117,7 @@ describe('CommentsSection', () => {
         content: 'Test comment'
       });
     });
-    
-    // The component should clear the input after successful submission
+
     expect(commentInput).toHaveValue('');
   });
 });

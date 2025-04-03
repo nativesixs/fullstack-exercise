@@ -1,6 +1,5 @@
-import { isRequired, minLength, validateForm } from './validationUtils';
+import { isRequired, validateForm } from './validationUtils';
 
-// Article form validation
 export interface ArticleFormData {
   title: string;
   perex: string;
@@ -21,7 +20,6 @@ export const validateArticleForm = (data: ArticleFormData): { isValid: boolean; 
   }) as { isValid: boolean; errors: ArticleFormErrors };
 };
 
-// Login form validation
 export interface LoginFormData {
   username: string;
   password: string;
@@ -39,7 +37,6 @@ export const validateLoginForm = (data: LoginFormData): { isValid: boolean; erro
   }) as { isValid: boolean; errors: LoginFormErrors };
 };
 
-// Comment form validation
 export interface CommentFormData {
   content: string;
   author?: string;

@@ -1,8 +1,5 @@
 import { AxiosError } from 'axios';
 
-/**
- * Common error types
- */
 export enum ErrorType {
   NETWORK = 'NETWORK',
   UNAUTHORIZED = 'UNAUTHORIZED',
@@ -13,9 +10,6 @@ export enum ErrorType {
   UNKNOWN = 'UNKNOWN',
 }
 
-/**
- * Error with type information
- */
 export interface TypedError {
   type: ErrorType;
   message: string;
@@ -24,9 +18,6 @@ export interface TypedError {
   data?: unknown;
 }
 
-/**
- * Extract error message from various error types
- */
 export const extractErrorMessage = (error: unknown): string => {
   if (typeof error === 'string') {
     return error;
@@ -43,9 +34,6 @@ export const extractErrorMessage = (error: unknown): string => {
   return 'An unknown error occurred';
 };
 
-/**
- * Format error message for display
- */
 export const formatErrorMessage = (error: unknown): string => {
   if (typeof error === 'string') {
     return error;
@@ -59,18 +47,13 @@ export const formatErrorMessage = (error: unknown): string => {
   return typedError.message;
 };
 
-/**
- * Get detailed information about an error
- */
 export const getErrorDetails = (error: unknown): TypedError => {
-  // Default error
   const defaultError: TypedError = {
     type: ErrorType.UNKNOWN,
     message: 'An unknown error occurred',
     originalError: error,
   };
   
-  // Handle string errors
   if (typeof error === 'string') {
     return {
       ...defaultError,
@@ -78,7 +61,6 @@ export const getErrorDetails = (error: unknown): TypedError => {
     };
   }
   
-  // Handle standard Error objects
   if (error instanceof Error) {
     return {
       ...defaultError,
@@ -86,7 +68,6 @@ export const getErrorDetails = (error: unknown): TypedError => {
     };
   }
   
-  // Handle Axios errors
   if (error && typeof error === 'object' && 'isAxiosError' in error) {
     const axiosError = error as AxiosError;
     

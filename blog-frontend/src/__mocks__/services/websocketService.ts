@@ -1,4 +1,3 @@
-// Mock websocket service for tests
 const websocketService = {
   connect: jest.fn(),
   disconnect: jest.fn(),

@@ -1,46 +1,290 @@
-# Getting Started with Create React App
+# Blog Frontend Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Introduction
 
-## Available Scripts
+React-based frontend application for a blogging platform, allowing users to view articles and comments, and administrators to create, edit, and manage articles.
 
-In the project directory, you can run:
+### Key Features
 
-### `npm start`
+- **Public Features**
+  - Article listing with sorting and pagination
+  - Article detail view with Markdown rendering
+  - Comment system with real-time updates via WebSockets
+  - Comment voting (upvote/downvote)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- **Admin Features**
+  - Authentication system
+  - Article creation with Markdown editor
+  - Article editing and deletion
+  - Image upload functionality
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Configuration
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The application uses environment variables for configuration. Create a `.env` file in the root directory with the following variables:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+REACT_APP_API_URL=https://fullstack.exercise.applifting.cz
+REACT_APP_WS_URL=wss://fullstack.exercise.applifting.cz/ws
 
-### `npm run eject`
+### Installation
+```
+npm install
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Running the Application
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Development Mode**
+```
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- **Production Build**
+```
+npm run build
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- **Running Tests**
+```
+npm test                  # Run all tests
+npm run test:coverage     # Run tests with coverage report
+npm run test:watch        # Run tests in watch mode
+npm run test:components   # Run only component tests
+npm run test:pages        # Run only page tests
+npm run test:utils        # Run only utility tests
+npm run test:api          # Run only API tests
+npm run test:store        # Run only store tests
+```
+## Architecture
 
-## Learn More
+### Technology Stack
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **React 18**: UI library
+- **TypeScript**: Type safety
+- **Redux Toolkit**: State management
+- **React Router v6**: Routing
+- **Chakra UI**: Component library
+- **Axios**: HTTP client
+- **Jest & React Testing Library**: Testing
+- **WebSockets**: Real-time updates
+- **SimpleMDE**: Markdown editor
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Application Structure
+
+The application follows a feature-based organization:
+```
+src/
+  components/         # Reusable UI components
+    ArticleCard/
+    ApiImage/
+    CommentsSection/
+    ...
+  pages/              # Page components
+    ArticleList/
+    ArticleDetail/
+    AdminArticleList/
+    ...
+  store/              # Redux state management
+    slices/           # Redux slices
+    actions/          # Async actions
+  api/                # API integration
+  hooks/              # Custom React hooks
+  utils/              # Helper utilities
+  types/              # TypeScript type definitions
+```
+### Component Architecture
+
+The application uses a component-based architecture with:
+
+1. **Container Components**: Connect to Redux store and handle data fetching (pages)
+2. **Presentational Components**: Focus on UI rendering with props
+3. **Shared Components**: Reusable components across features
+4. **HOCs**: Higher-order components like ProtectedRoute for authentication
+
+### Data Flow
+
+1. User interacts with UI
+2. Components dispatch Redux actions
+3. Redux thunks handle API requests
+4. API responses update Redux store
+5. UI components react to state changes
+6. For real-time features, WebSockets push updates directly to components
+
+## Features
+
+### Public Features
+
+#### Article List
+- Display all published articles with pagination
+- Sort articles by date (newest first)
+- Show article title, perex, and publication date
+
+#### Article Detail
+- Display article content with Markdown rendering
+- Show article metadata (author, date)
+- View comments section
+
+#### Comments
+- View comments for each article
+- Submit new comments (authentication required)
+- Upvote/downvote comments
+- Real-time comment updates via WebSockets
+
+### Admin Features
+
+#### Authentication
+- Login with username/password
+- Token-based authentication
+- Protected routes for admin operations
+
+#### Article Management
+- Create new articles with Markdown editor
+- Edit existing articles
+- Delete articles
+- View list of all articles with edit/delete options
+
+#### Image Upload
+- Upload images for articles
+- Preview uploaded images
+- Image management
+
+## State Management
+
+### Redux Setup
+
+The application uses Redux Toolkit for state management, with a structure organized around feature slices:
+
+- **articlesSlice**: Manages article list state
+- **articlesEntitySlice**: Normalized article data using entity adapter
+- **authSlice**: Authentication state
+
+### Entity Adapters
+
+Entity adapters are used for state management of collections:
+
+- **articlesEntityAdapter**: Normalized storage of articles
+- Provides selectors like `selectAllArticles`, `selectById`
+
+### Async Operations
+
+Async operations are handled using Redux Toolkit's `createAsyncThunk`:
+
+- **fetchArticles**: Get all articles
+- **fetchArticleById**: Get single article
+- **createArticle**: Create new article
+- **updateArticle**: Update existing article
+- **deleteArticle**: Delete article
+
+## API Integration
+
+### REST API Clients
+
+API integration is handled through Axios with request interceptors for:
+
+- Authentication token inclusion
+- API key management
+- Error handling
+- Response normalization
+
+### WebSocket Integration
+
+WebSockets are used for real-time comment updates:
+
+- Connection management in custom hook
+- Auto-reconnect functionality
+- Message parsing and handling
+
+### Error Handling
+
+- API error interceptors
+- Error state in Redux
+- User-friendly error messages
+- Retry mechanisms for transient failures
+
+## Testing
+
+### Testing Strategy
+
+- **Unit Tests**: For utility functions
+- **Component Tests**: For UI components
+- **Integration Tests**: For page components
+- **Redux Tests**: For state management
+
+### Test Utils
+
+The application includes testing utilities:
+
+- `mockStore`: Redux store mocking
+- Component test helpers
+- API mocking utilities
+
+## Deployment
+
+### Build Process
+```
+npm run build
+```
+
+### Environment Configuration
+
+Environment-specific configurations:
+
+- `.env.development`: Development settings
+- `.env.production`: Production settings
+- `.env.test`: Test-specific settings
+
+### Production Considerations
+
+- Enable caching of static assets
+- Set up proper CORS headers
+- Configure proper API URL
+- Ensure WebSocket connections work in production
+
+## Code Quality
+
+### TypeScript Type Safety
+
+The application uses TypeScript for type safety:
+
+- Defined interfaces for all data models
+- Type-safe Redux using RTK
+- Type-safe props with PropTypes
+- Generics for reusable components
+
+### Coding Standards
+
+Code quality is maintained through:
+
+- Consistent coding patterns
+- Component structure conventions
+
+### Performance Optimization
+
+Performance optimizations include:
+
+- Memoization of components and selectors
+- Lazy loading of routes
+- Pagination for large data sets
+- Image optimization
+
+## Known Issues & Limitations
+
+### Current Limitations
+
+- Single user system (no user registration)
+- Limited image management options
+- No draft system for articles
+- Limited comment moderation tools
+
+### Planned Improvements
+
+- Enhanced test coverage
+- Draft system for articles
+- Comment moderation tools
+- User management

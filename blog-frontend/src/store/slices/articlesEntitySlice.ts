@@ -3,14 +3,11 @@ import { Article, ArticleDetail } from '../../types/article';
 import { fetchArticles, fetchArticleById, createArticle, updateArticle, deleteArticle } from '../actions/articleActions';
 import { RootState } from '../store';
 
-// Create entity adapter with proper key types
 const articlesAdapter = createEntityAdapter<Article, string>({
   selectId: (article) => article.articleId,
-  // Sort by creation date (newest first)
   sortComparer: (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 });
 
-// Define state interface that extends EntityState
 export interface ArticlesState extends EntityState<Article, string> {
   loading: boolean;
   error: string | null;
@@ -18,7 +15,6 @@ export interface ArticlesState extends EntityState<Article, string> {
   currentArticle: ArticleDetail | null;
 }
 
-// Initial state with loading and error flags
 const initialState: ArticlesState = articlesAdapter.getInitialState({
   loading: false,
   error: null,
@@ -26,7 +22,6 @@ const initialState: ArticlesState = articlesAdapter.getInitialState({
   currentArticle: null
 });
 
-// Create slice
 const articlesSlice = createSlice({
   name: 'articles',
   initialState,
@@ -40,7 +35,6 @@ const articlesSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    // Fetch all articles
     builder
       .addCase(fetchArticles.pending, (state) => {
         state.loading = true;
@@ -55,7 +49,6 @@ const articlesSlice = createSlice({
         state.error = action.payload as string || 'Failed to fetch articles';
       });
 
-    // Fetch article by ID
     builder
       .addCase(fetchArticleById.pending, (state) => {
         state.loading = true;
@@ -65,7 +58,6 @@ const articlesSlice = createSlice({
         state.currentArticle = action.payload;
         state.currentArticleId = action.payload.articleId;
         
-        // Also update the entity if it exists
         articlesAdapter.upsertOne(state, action.payload);
         
         state.loading = false;
@@ -75,7 +67,6 @@ const articlesSlice = createSlice({
         state.error = action.payload as string || 'Failed to fetch article';
       });
 
-    // Create article
     builder
       .addCase(createArticle.pending, (state) => {
         state.loading = true;
@@ -92,7 +83,6 @@ const articlesSlice = createSlice({
         state.error = action.payload as string || 'Failed to create article';
       });
 
-    // Update article
     builder
       .addCase(updateArticle.pending, (state) => {
         state.loading = true;
@@ -112,7 +102,6 @@ const articlesSlice = createSlice({
         state.error = action.payload as string || 'Failed to update article';
       });
 
-    // Delete article
     builder
       .addCase(deleteArticle.pending, (state) => {
         state.loading = true;
@@ -135,11 +124,8 @@ const articlesSlice = createSlice({
   }
 });
 
-// Export actions
 export const { setCurrentArticle, clearArticleError } = articlesSlice.actions;
 
-// Export selectors directly, no need for intermediate selectArticlesState function
-// The adapter's getSelectors will properly infer the types from our state
 export const {
   selectAll: selectAllArticles,
   selectById: selectArticleById,
@@ -148,5 +134,4 @@ export const {
   selectTotal: selectTotalArticles
 } = articlesAdapter.getSelectors<RootState>(state => state.articles);
 
-// Export reducer
 export default articlesSlice.reducer;

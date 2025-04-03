@@ -13,11 +13,6 @@ export interface AccessTokenResponse {
   token_type: string;
 }
 
-/**
- * Attempts to log in with the given credentials
- * @param credentials The login credentials
- * @returns The access token response
- */
 export const login = async (credentials: LoginCredentials): Promise<AccessTokenResponse> => {
   const apiKey = getApiKey();
   
@@ -34,9 +29,6 @@ export const login = async (credentials: LoginCredentials): Promise<AccessTokenR
   }
 };
 
-/**
- * Creates common auth headers for API requests
- */
 export const getAuthHeaders = (): AxiosRequestConfig['headers'] => {
   const apiKey = getApiKey();
   return {

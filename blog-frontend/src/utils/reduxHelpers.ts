@@ -22,9 +22,6 @@ export const extractErrorMessage = (
   return 'An unknown error occurred';
 };
 
-/**
- * Create async thunk with standardized error handling
- */
 export function createAsyncThunk<Returned, ThunkArg = void>(
   typePrefix: string,
   payloadCreator: (arg: ThunkArg) => Promise<Returned>
@@ -35,7 +32,6 @@ export function createAsyncThunk<Returned, ThunkArg = void>(
       try {
         return await payloadCreator(arg);
       } catch (error: any) {
-        // Handle Axios errors
         if (error.response) {
           return rejectWithValue(
             error.response.data?.message || 
@@ -43,7 +39,6 @@ export function createAsyncThunk<Returned, ThunkArg = void>(
           );
         }
         
-        // Handle other errors
         return rejectWithValue(
           error.message || `Failed in ${typePrefix}`
         );
@@ -52,9 +47,6 @@ export function createAsyncThunk<Returned, ThunkArg = void>(
   );
 }
 
-/**
- * Create standard handlers for async action states
- */
 export const createAsyncHandlers = <T, S extends BaseState>(dataKey?: keyof S) => {
   return {
     pending: (state: S) => {

@@ -3,9 +3,6 @@ import { config } from '../config';
 import { Comment, CommentCreateData } from '../types/comment';
 import { getApiKey, getAccessToken } from '../utils/tokenStorage';
 
-/**
- * Post a new comment
- */
 export const postComment = async (commentData: CommentCreateData): Promise<Comment> => {
   try {
     const apiKey = getApiKey();
@@ -33,9 +30,6 @@ export const postComment = async (commentData: CommentCreateData): Promise<Comme
   }
 };
 
-/**
- * Upvote a comment
- */
 export const upvoteComment = async (commentId: string): Promise<Comment> => {
   try {
     const apiKey = getApiKey();
@@ -62,9 +56,6 @@ export const upvoteComment = async (commentId: string): Promise<Comment> => {
   }
 };
 
-/**
- * Downvote a comment
- */
 export const downvoteComment = async (commentId: string): Promise<Comment> => {
   try {
     const apiKey = getApiKey();
@@ -91,9 +82,6 @@ export const downvoteComment = async (commentId: string): Promise<Comment> => {
   }
 };
 
-/**
- * Get comments for an article
- */
 export const getComments = async (articleId: string): Promise<Comment[]> => {
   try {
     const apiKey = getApiKey();
@@ -119,5 +107,4 @@ export const getComments = async (articleId: string): Promise<Comment[]> => {
   }
 };
 
-// Alias for backward compatibility
 export const getCommentsForArticle = getComments;

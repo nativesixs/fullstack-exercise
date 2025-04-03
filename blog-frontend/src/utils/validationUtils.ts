@@ -34,7 +34,7 @@ export const isEmail = (value: string, message = 'Invalid email format'): string
  * Validates URL format
  */
 export const isUrl = (value: string, message = 'Invalid URL format'): string | null => {
-  if (!value) return null; // Skip if empty
+  if (!value) return null;
   try {
     new URL(value);
     return null;
@@ -43,9 +43,6 @@ export const isUrl = (value: string, message = 'Invalid URL format'): string | n
   }
 };
 
-/**
- * Creates a validator that combines multiple validation rules
- */
 export const combineValidators = (...validators: ((value: string) => string | null)[]) => {
   return (value: string): string | null => {
     for (const validator of validators) {
@@ -68,7 +65,6 @@ export const validateForm = <T extends Record<string, any>>(
   const errors: Partial<Record<keyof T, string>> = {};
   let isValid = true;
   
-  // Validate each field according to schema
   for (const field in schema) {
     const validator = schema[field];
     if (validator) {

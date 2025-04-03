@@ -10,7 +10,6 @@ import {
 import { ArticlesState } from '../../types/state';
 import { createAsyncHandlers } from '../../utils/reduxHelpers';
 
-// Define initial state with proper typing
 const initialState: ArticlesState = {
   articles: [],
   currentArticle: null,
@@ -18,16 +17,13 @@ const initialState: ArticlesState = {
   error: null
 };
 
-// Create the slice with properly typed reducers
 const articlesSlice = createSlice({
   name: 'articles',
   initialState,
   reducers: {
-    // Clear error action
     clearArticleError: (state) => {
       state.error = null;
     },
-    // Clear current article action
     clearCurrentArticle: (state) => {
       state.currentArticle = null;
     },
@@ -35,8 +31,7 @@ const articlesSlice = createSlice({
   extraReducers: (builder) => {
     const fetchArticlesHandlers = createAsyncHandlers<Article[], ArticlesState>('articles');
     const fetchArticleByIdHandlers = createAsyncHandlers<ArticleDetail, ArticlesState>('currentArticle');
-    
-    // Fetch articles handlers
+
     builder
       .addCase(fetchArticles.pending, fetchArticlesHandlers.pending)
       .addCase(fetchArticles.fulfilled, (state, action: PayloadAction<Article[]>) => {
@@ -45,7 +40,6 @@ const articlesSlice = createSlice({
       })
       .addCase(fetchArticles.rejected, fetchArticlesHandlers.rejected);
 
-    // Fetch article by ID handlers
     builder
       .addCase(fetchArticleById.pending, fetchArticleByIdHandlers.pending)
       .addCase(fetchArticleById.fulfilled, (state, action: PayloadAction<ArticleDetail>) => {
@@ -54,7 +48,6 @@ const articlesSlice = createSlice({
       })
       .addCase(fetchArticleById.rejected, fetchArticleByIdHandlers.rejected);
 
-    // Create article handlers
     builder
       .addCase(createArticle.pending, (state) => {
         state.loading = true;
@@ -70,7 +63,6 @@ const articlesSlice = createSlice({
         state.error = action.payload || 'Failed to create article';
       });
 
-    // Update article handlers
     builder
       .addCase(updateArticle.pending, (state) => {
         state.loading = true;
@@ -88,7 +80,6 @@ const articlesSlice = createSlice({
         state.error = action.payload || 'Failed to update article';
       });
 
-    // Delete article handlers
     builder
       .addCase(deleteArticle.pending, (state) => {
         state.loading = true;

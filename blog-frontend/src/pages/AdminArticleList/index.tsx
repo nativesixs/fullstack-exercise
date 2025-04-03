@@ -22,7 +22,6 @@ import { SortConfig, sortArticles, toggleSort, SortField } from '../../utils/art
 const ITEMS_PER_PAGE = 10;
 
 const AdminArticleList: React.FC = () => {
-  // Get articles from the entity adapter selectors
   const articles = useSelector(selectAllArticles);
   const { loading, error } = useSelector((state: RootState) => state.articles);
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -84,7 +83,6 @@ const AdminArticleList: React.FC = () => {
     setSort(prevSort => toggleSort(prevSort, field));
   };
 
-  // Pagination and sorting
   const sortedArticles = sortArticles(articles, sort);
   const totalItems = sortedArticles.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);

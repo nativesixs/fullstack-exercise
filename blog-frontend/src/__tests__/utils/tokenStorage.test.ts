@@ -3,11 +3,9 @@ import {
   setApiKey, 
   getAccessToken, 
   setAccessToken, 
-  removeAccessToken,
-  isTokenExpired
+  removeAccessToken
 } from '../../utils/tokenStorage';
 
-// Mock the config for tests
 jest.mock('../../config', () => ({
   config: {
     API_KEY_STORAGE_KEY: 'apiKey',
@@ -23,19 +21,16 @@ describe('Token Storage Utils', () => {
   beforeEach(() => {
     mockStorage = {};
     
-    // Mock localStorage methods
     jest.spyOn(window.localStorage, 'getItem').mockImplementation((key) => mockStorage[key] || null);
     jest.spyOn(window.localStorage, 'setItem').mockImplementation((key, value) => { mockStorage[key] = value.toString(); });
     jest.spyOn(window.localStorage, 'removeItem').mockImplementation((key) => { delete mockStorage[key]; });
     
-    // Save original Date.now function
     originalDateNow = Date.now;
     
     jest.clearAllMocks();
   });
 
   afterEach(() => {
-    // Restore original Date.now
     Date.now = originalDateNow;
     jest.restoreAllMocks();
   });
@@ -60,11 +55,10 @@ describe('Token Storage Utils', () => {
 
   describe('Access Token', () => {
     it('should get access token from localStorage', () => {
-      // Mock Date.now to return a fixed time
       const currentTime = 1000000;
       Date.now = jest.fn(() => currentTime);
       
-      const futureTime = currentTime + 3600000; // 1 hour in future
+      const futureTime = currentTime + 3600000;
       mockStorage['blog_access_token'] = 'test-token';
       mockStorage['blog_token_expiry'] = String(futureTime);
       
@@ -75,11 +69,10 @@ describe('Token Storage Utils', () => {
     });
 
     it('should return null if token is expired', () => {
-      // Mock Date.now to return a fixed time
       const currentTime = 5000000;
       Date.now = jest.fn(() => currentTime);
       
-      const pastTime = currentTime - 3600000; // 1 hour in past
+      const pastTime = currentTime - 3600000;
       mockStorage['blog_access_token'] = 'test-token';
       mockStorage['blog_token_expiry'] = String(pastTime);
       
@@ -89,7 +82,6 @@ describe('Token Storage Utils', () => {
     });
 
     it('should set access token with expiry in localStorage', () => {
-      // Mock Date.now to return a fixed time
       const currentTime = 1000000;
       Date.now = jest.fn(() => currentTime);
       

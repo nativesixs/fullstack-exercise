@@ -17,7 +17,6 @@ import { format } from 'date-fns';
 import CommentsSection from '../../components/CommentsSection';
 import { getCommentsForArticle } from '../../api/commentApi';
 import { Comment } from '../../types/comment';
-import { config } from '../../config';
 import LoadingState from '../../components/LoadingState';
 import ApiImage from '../../components/ApiImage';
 
@@ -31,7 +30,6 @@ const ArticleDetail: React.FC = () => {
     if (articleId) {
       dispatch(fetchArticleById(articleId));
       
-      // Load comments via API
       const fetchComments = async () => {
         try {
           const fetchedComments = await getCommentsForArticle(articleId);

@@ -16,7 +16,6 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn()
 }));
 
-// Mock the entity adapter selector
 jest.mock('../../store/slices/articlesEntitySlice', () => ({
   selectAllArticles: (state) => state.articles.articles || []
 }));
@@ -48,7 +47,7 @@ describe('AdminArticleList Page', () => {
         ],
         loading: false,
         error: null,
-        ids: ['article-1', 'article-2'], // Add the ids array for the entity adapter
+        ids: ['article-1', 'article-2'],
         entities: {
           'article-1': {
             articleId: 'article-1',

@@ -14,9 +14,8 @@ import {
 import { EditIcon, DeleteIcon, TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
 import { formatDate } from '../../utils/dateUtils';
 import { Article } from '../../types/article';
-import { SortField, SortDirection, SortConfig } from '../../utils/articleSorting';
+import { SortField, SortConfig } from '../../utils/articleSorting';
 
-// Re-export SortField for compatibility
 export type { SortField } from '../../utils/articleSorting';
 
 interface ArticleTableProps {

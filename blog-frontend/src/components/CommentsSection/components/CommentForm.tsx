@@ -26,7 +26,6 @@ const CommentForm: React.FC<CommentFormProps> = ({ articleId, onCommentPosted })
     e.preventDefault();
     setError(null);
     
-    // Simple validation
     if (!content.trim()) {
       toast({
         title: 'Error',

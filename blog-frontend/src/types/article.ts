@@ -1,4 +1,3 @@
-// Basic article data
 export interface Article {
   articleId: string;
   title: string;
@@ -8,13 +7,11 @@ export interface Article {
   lastUpdatedAt?: string;
 }
 
-// Detailed article with content and comments
 export interface ArticleDetail extends Article {
   content: string;
   comments?: Comment[];
 }
 
-// Data needed to create a new article
 export interface ArticleCreateData {
   title: string;
   perex: string;
@@ -22,7 +19,6 @@ export interface ArticleCreateData {
   imageId?: string;
 }
 
-// Data needed to update an existing article
 export interface ArticleUpdateData {
   title?: string;
   perex?: string;
@@ -30,7 +26,6 @@ export interface ArticleUpdateData {
   imageId?: string;
 }
 
-// API response format for article list
 export interface ArticleListResponse {
   pagination: {
     offset: number;
@@ -40,7 +35,6 @@ export interface ArticleListResponse {
   items: Article[];
 }
 
-// Comment data
 export interface Comment {
   commentId: string;
   articleId: string;

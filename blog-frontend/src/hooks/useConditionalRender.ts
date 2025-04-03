@@ -5,10 +5,6 @@ type RenderCondition<T> = {
   render: () => T;
 };
 
-/**
- * Hook for simplified conditional rendering
- * Allows for cleaner JSX by moving conditionals to hooks
- */
 export function useConditionalRender<T>(...conditions: RenderCondition<T>[]): T | null {
   return useMemo(() => {
     for (const condition of conditions) {

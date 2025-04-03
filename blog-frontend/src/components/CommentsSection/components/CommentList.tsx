@@ -16,7 +16,6 @@ const CommentList: React.FC<CommentListProps> = ({
   isAuthenticated,
   onVote 
 }) => {
-  // Sort comments by date (newest first)
   const sortedComments = [...comments].sort(
     (a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
   );

@@ -2,22 +2,16 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } f
 import { getApiKey, getAccessToken } from '../utils/tokenStorage';
 import { config } from '../config';
 
-/**
- * Create a base axios instance with common configuration
- * @param baseConfig Additional configuration to merge
- * @returns Configured axios instance
- */
 export const createApiClient = (baseConfig: AxiosRequestConfig = {}): AxiosInstance => {
   const instance = axios.create({
     baseURL: config.API_URL,
     headers: {
       'Content-Type': 'application/json',
     },
-    timeout: 10000, // 10 seconds
+    timeout: 10000,
     ...baseConfig
   });
   
-  // Add request interceptor for auth headers
   instance.interceptors.request.use(
     (config) => {
       const apiKey = getApiKey();
@@ -40,14 +34,12 @@ export const createApiClient = (baseConfig: AxiosRequestConfig = {}): AxiosInsta
     }
   );
   
-  // Add response interceptor for consistent error handling
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
       return response;
     },
     (error: AxiosError) => {
       if (error.response) {
-        // API error with response
         const status = error.response.status;
         
         if (status === 401) {
@@ -60,10 +52,8 @@ export const createApiClient = (baseConfig: AxiosRequestConfig = {}): AxiosInsta
           console.error('Server error occurred');
         }
       } else if (error.request) {
-        // Request made but no response received
         console.error('No response received from server');
       } else {
-        // Error in setting up the request
         console.error('Error setting up the request:', error.message);
       }
       
@@ -74,5 +64,4 @@ export const createApiClient = (baseConfig: AxiosRequestConfig = {}): AxiosInsta
   return instance;
 };
 
-// Export default instance
 export default createApiClient();

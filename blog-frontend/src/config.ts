@@ -1,6 +1,3 @@
-/**
- * Application configuration
- */
 
 // Environment detection
 const isDevelopment = process.env.NODE_ENV === 'development';

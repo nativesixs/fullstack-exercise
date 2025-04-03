@@ -10,18 +10,12 @@ import {
 } from '@reduxjs/toolkit';
 import { createAsyncThunk } from './reduxHelpers';
 
-/**
- * Extended entity state with loading and error state
- */
 export interface EntityStateExt<T, K extends EntityId = string> extends EntityState<T, K> {
   loading: boolean;
   error: string | null;
   selectedId: K | null;
 }
 
-/**
- * Creates a standard entity adapter slice with async handlers
- */
 export function createEntitySlice<
   T extends { [key: string]: any },
   K extends EntityId = string,
@@ -32,12 +26,10 @@ export function createEntitySlice<
   reducers: ValidateSliceCaseReducers<EntityStateExt<T, K>, Reducers>,
   extraReducers?: (builder: any) => void
 ) {
-  // Create adapter
   const adapter = createEntityAdapter<T, K>({
     selectId
   });
   
-  // Create initial state with loading and error
   const initialState = adapter.getInitialState<{
     loading: boolean;
     error: string | null;
@@ -48,12 +40,10 @@ export function createEntitySlice<
     selectedId: null as K | null
   });
   
-  // Create slice
   const slice = createSlice({
     name,
     initialState,
     reducers: {
-      // Add standard entity adapter reducers
       setOne: adapter.setOne,
       setAll: adapter.setAll,
       setMany: adapter.setMany,
@@ -63,7 +53,6 @@ export function createEntitySlice<
       updateMany: adapter.updateMany,
       removeOne: adapter.removeOne,
       removeMany: adapter.removeMany,
-      // Add loading state reducers
       setLoading: (state: EntityStateExt<T, K>, action: PayloadAction<boolean>) => {
         state.loading = action.payload;
       },
@@ -85,9 +74,6 @@ export function createEntitySlice<
   };
 }
 
-/**
- * Creates an async thunk with entity adapter integration
- */
 export function createEntityThunk<ResultType, ArgType = void, K extends EntityId = string>(
   typePrefix: string,
   payloadCreator: (arg: ArgType) => Promise<ResultType>,
@@ -104,7 +90,6 @@ export function createEntityThunk<ResultType, ArgType = void, K extends EntityId
       },
       fulfilled: (state: EntityStateExt<any, K>, action: PayloadAction<ResultType>) => {
         state.loading = false;
-        // Handle different types of results
         if (Array.isArray(action.payload)) {
           adapter.setAll(state, action.payload);
         } else if (action.payload && typeof action.payload === 'object') {

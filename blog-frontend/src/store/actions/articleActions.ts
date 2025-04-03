@@ -3,7 +3,6 @@ import apiClient from '../../api/apiClient';
 import { createAsyncThunk } from '../../utils/reduxHelpers';
 import { PaginationParams } from '../../types/state';
 
-// Fetch all articles
 export const fetchArticles = createAsyncThunk<Article[], PaginationParams>(
   'articles/fetchArticles',
   async (params = {}) => {
@@ -15,7 +14,6 @@ export const fetchArticles = createAsyncThunk<Article[], PaginationParams>(
   }
 );
 
-// Fetch article by ID
 export const fetchArticleById = createAsyncThunk<ArticleDetail, string>(
   'articles/fetchArticleById',
   async (articleId) => {
@@ -24,7 +22,6 @@ export const fetchArticleById = createAsyncThunk<ArticleDetail, string>(
   }
 );
 
-// Create new article
 export const createArticle = createAsyncThunk<ArticleDetail, ArticleCreateData>(
   'articles/createArticle',
   async (articleData) => {
@@ -33,7 +30,6 @@ export const createArticle = createAsyncThunk<ArticleDetail, ArticleCreateData>(
   }
 );
 
-// Update existing article
 export const updateArticle = createAsyncThunk<
   ArticleDetail, 
   { articleId: string; articleData: ArticleUpdateData }
@@ -48,7 +44,6 @@ export const updateArticle = createAsyncThunk<
   }
 );
 
-// Delete article
 export const deleteArticle = createAsyncThunk<string, string>(
   'articles/deleteArticle',
   async (articleId) => {
