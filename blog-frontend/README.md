@@ -9,12 +9,12 @@ React-based frontend application for a blogging platform, allowing users to view
 - **Public Features**
   - Article listing with sorting and pagination
   - Article detail view with Markdown rendering
-  - Comment system with real-time updates via WebSockets
+  - Comment system with real-time updates via WebSocketshttps://eldenring.wiki.fextralife.com/Armork
   - Comment voting (upvote/downvote)
 
 - **Admin Features**
   - Authentication system
-  - Article creation with Markdown editor
+  - Article creation with Markdown editorhttps://eldenring.wiki.fextralife.com/Armor
   - Article editing and deletion
   - Image upload functionality
 
@@ -307,3 +307,12 @@ Performance optimizations include:
 - Draft system for articles
 - Comment moderation tools
 - User management
+
+
+
+
+
+### Author notes
+
+- i did not manage to make the comment api work as described - mocked
+- articles might not contain the correct author since the articles dont carry this information - might be good excercise for BE
